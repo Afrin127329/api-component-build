@@ -1,4 +1,4 @@
-/*! api-component - 1.0.57 */
+/*! api-component - 1.0.58 */
 !(function (t, n) {
   "object" == typeof exports && "object" == typeof module
     ? (module.exports = n())
@@ -54,9 +54,39 @@
                           ? t.classList.add("not-empty")
                           : t.classList.remove("not-empty");
                       });
-                    });
+                    }),
+                  document.addEventListener("DOMContentLoaded", function () {
+                    document
+                      .querySelector(".standardForm")
+                      .addEventListener("submit", function (t) {
+                        t.preventDefault();
+                        const n = new FormData(t.target);
+                        let e = [];
+                        for (var a of n.entries())
+                          console.log(a[0] + ": " + a[1]);
+                        const o = n.get("productPrice");
+                        let i = n.get("size");
+                        null === i && (i = "");
+                        const r = n.get("color"),
+                          s = n.get("quantity");
+                        e.push({
+                          size: i,
+                          color: r,
+                          quantity: s,
+                          productPrice: o,
+                        }),
+                          n.delete("size"),
+                          n.delete("color"),
+                          n.delete("quantity"),
+                          0 === e.length && (e = []),
+                          console.log(e),
+                          n.append("cart", JSON.stringify(e)),
+                          console.log(Object.fromEntries(n)),
+                          t.target.reset();
+                      });
+                  });
               },
-              o = `\n  const orderSumList = document.getElementById("orderSumList");\n\n  // Function to update the order summary list\n  const updateOrderSummary = (index, color, quantity, price) => {\n    let listItem = document.getElementById("optionGroup" + index + "Sum");\n    if (!listItem) {\n      listItem = document.createElement("li");\n      listItem.id = "optionGroup" + index + "Sum";\n      listItem.className = "order-summary";\n      listItem.innerHTML = '<a href="javascript:;" class="btn btn-outline-danger" style="border-radius: 50%"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-x" viewBox="0 0 16 16"><path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708"/></svg></a><span class="summary-text"></span><span class="price"></span>';\n\n      orderSumList.appendChild(listItem);\n      \n      // Add click event to remove item\n      listItem.querySelector("a").addEventListener("click", function () {\n        listItem.remove();\n        calculateTotalPrice();\n      });\n    }\n\n    const summaryText = listItem.querySelector(".summary-text");\n    const priceSpan = listItem.querySelector(".price");\n\n    if (quantity > 0) {\n      summaryText.textContent = color + " x " + quantity;\n      priceSpan.textContent = "৳ " + (quantity * price).toFixed(2);\n    } else {\n      listItem.remove();\n    }\n\n    calculateTotalPrice();\n  };\n\n  // Function to calculate the total price\n  const calculateTotalPrice = () => {\n    const totalPriceElement = document.querySelector("#totalPrice");\n    const prices = orderSumList.querySelectorAll(".price");\n    let total = 0;\n\n    prices.forEach((priceSpan) => {\n      const priceText = priceSpan.textContent.replace("৳ ", "");\n      total += parseFloat(priceText);\n    });\n\n    totalPriceElement.value = "৳ " + total.toFixed(2);\n  };\n\n  document\n    .querySelectorAll(".colorAndQuantity")\n    .forEach(function (optionBox, index) {\n      const colorList = optionBox.querySelector(".colorList");\n      const quantityInput = optionBox.querySelector(".quantity");\n\n      colorList.addEventListener("change", function () {\n        const color = colorList.value;\n        const quantity = parseInt(quantityInput.value, 10);\n        const price = parseFloat(document.querySelector("#productPrice").value);\n        updateOrderSummary(index, color, quantity, price);\n      });\n\n      quantityInput.addEventListener("input", function () {\n        const color = colorList.value;\n        const quantity = parseInt(quantityInput.value, 10);\n        const price = parseFloat(document.querySelector("#productPrice").value);\n        updateOrderSummary(index, color, quantity, price);\n      });\n    });\n`,
+              o = `\n  let orderSumList = document.getElementById("orderSumList");\n\n  // Function to update the order summary list\n  const updateOrderSummary = (index, color, quantity, price) => {\n    let listItem = document.getElementById("optionGroup" + index + "Sum");\n    if (!listItem) {\n      listItem = document.createElement("li");\n      listItem.id = "optionGroup" + index + "Sum";\n      listItem.className = "order-summary";\n      listItem.innerHTML = '<a href="javascript:;" class="btn btn-outline-danger" style="border-radius: 50%"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-x" viewBox="0 0 16 16"><path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708"/></svg></a><span class="summary-text"></span><span class="price"></span>';\n\n      orderSumList.appendChild(listItem);\n      \n      // Add click event to remove item\n      listItem.querySelector("a").addEventListener("click", function () {\n        listItem.remove();\n        calculateTotalPrice();\n      });\n    }\n\n    const summaryText = listItem.querySelector(".summary-text");\n    const priceSpan = listItem.querySelector(".price");\n\n    if (quantity > 0) {\n      summaryText.textContent = color + " x " + quantity;\n      priceSpan.textContent = "৳ " + (quantity * price).toFixed(2);\n    } else {\n      listItem.remove();\n    }\n\n    calculateTotalPrice();\n  };\n\n  // Function to calculate the total price\n  const calculateTotalPrice = () => {\n    const totalPriceElement = document.querySelector("#totalPrice");\n    const prices = orderSumList.querySelectorAll(".price");\n    let total = 0;\n\n    prices.forEach((priceSpan) => {\n      const priceText = priceSpan.textContent.replace("৳ ", "");\n      total += parseFloat(priceText);\n    });\n\n    totalPriceElement.value = "৳ " + total.toFixed(2);\n  };\n\n  document\n    .querySelectorAll(".colorAndQuantity")\n    .forEach(function (optionBox, index) {\n      const colorList = optionBox.querySelector(".colorList");\n      const quantityInput = optionBox.querySelector(".quantity");\n\n      colorList.addEventListener("change", function () {\n        const color = colorList.value;\n        const quantity = parseInt(quantityInput.value, 10);\n        const price = parseFloat(document.querySelector("#productPrice").value);\n        updateOrderSummary(index, color, quantity, price);\n      });\n\n      quantityInput.addEventListener("input", function () {\n        const color = colorList.value;\n        const quantity = parseInt(quantityInput.value, 10);\n        const price = parseFloat(document.querySelector("#productPrice").value);\n        updateOrderSummary(index, color, quantity, price);\n      });\n    });\n\n\n    document.addEventListener('DOMContentLoaded', function() {\n  const form = document.querySelector('.multipleItemForm'); \n\n  form.addEventListener('submit', function(e) {\n    e.preventDefault();\n\n    const formData = new FormData(e.target);\n    let cart = [];\n    const productPrice = formData.get("productPrice");\n\n    const sizeComps = document.querySelectorAll('.colorAndQuantity');\n    sizeComps.forEach(function(sizeComp) {\n      const size = sizeComp.id;\n       const color = document.querySelector("#colorList" + size).value;\n      const quantity = document.querySelector("#quantity" + size).value;\n      if (color === "Select a Color") {\n        cart.push({\n          size: size,\n          color: "",\n          quantity: quantity,\n          productPrice: productPrice,\n        });\n      } else {\n        cart.push({\n          size: size,\n          color: color,\n          quantity: quantity,\n          productPrice: productPrice,\n        });\n      }\n    });\n\n    // If cart is empty, add a blank array\n    if (cart.length === 0) {\n      cart = [];\n    }\n    console.log(cart);\n\n    // Append cart array to FormData object as JSON string\n    formData.append("cart", JSON.stringify(cart));\n    formData.delete("size");\n    formData.delete("color");\n    formData.delete("quantity");\n\n    console.log(Object.fromEntries(formData));\n    e.target.reset();\n  });\n});\n\n`,
               i = `\ndocument.addEventListener('DOMContentLoaded', function() {\n  const form = document.querySelector('.basicForm'); \n\n  form.addEventListener('submit', function(e) {\n    e.preventDefault();\n\n    var formData = new FormData(e.target);\n    let cart = [];\n\n    for (var pair of formData.entries()) {\n      console.log(pair[0] + ": " + pair[1]);\n    }\n\n    const size = formData.get("size");\n    const color = formData.get("color");\n    const quantity = formData.get("quantity");\n    const productPrice = formData.get("productPrice");\n\n    if (size && color && quantity && productPrice) {\n      cart.push({\n        size: size,\n        color: color,\n        quantity: quantity,\n        productPrice: productPrice,\n      });\n    }\n\n    // If cart is empty, add a blank array\n    if (cart.length === 0) {\n      cart = [];\n    }\n\n    // Convert cart array to JSON and append it to the FormData object\n    formData.append("cart", JSON.stringify(cart));\n\n    console.log(Object.fromEntries(formData));\n\n\n    e.target.reset();\n  });\n});\n\n`;
           },
           476: function (t, n, e) {
@@ -567,7 +597,8 @@
                               : n.attr;
                         d
                           ? (d.value = c)
-                          : console.error("Token input element not found"),
+                          : console.error("Token input element not found");
+                        t.getHtml().includes(a.basicFormScript) ||
                           t.addComponents(
                             `<script>${a.basicFormScript}<\/script>`
                           );
@@ -583,29 +614,6 @@
                       events: {
                         submit: (t) => {
                           t.preventDefault();
-                          const n = new FormData(t.target);
-                          let e = [];
-                          for (var a of n.entries())
-                            console.log(a[0] + ": " + a[1]);
-                          const o = n.get("productPrice");
-                          let i = n.get("size");
-                          null === i && (i = "");
-                          const r = n.get("color"),
-                            s = n.get("quantity");
-                          e.push({
-                            size: i,
-                            color: r,
-                            quantity: s,
-                            productPrice: o,
-                          }),
-                            n.delete("size"),
-                            n.delete("color"),
-                            n.delete("quantity"),
-                            0 === e.length && (e = []),
-                            console.log(e),
-                            n.append("cart", JSON.stringify(e)),
-                            console.log(Object.fromEntries(n)),
-                            t.target.reset();
                         },
                       },
                     },
@@ -617,7 +625,7 @@
                         draggable: ":not(form)",
                         name: r[1],
                         attributes: {
-                          class: `${l} ${l}-container`,
+                          class: `${l} ${l}-container standardForm`,
                           method: "post",
                           action: `${
                             document.location.protocol +
@@ -722,38 +730,8 @@
                         s = this.model.attributes.selectedData;
                       },
                       events: {
-                        submit: (n) => {
-                          n.preventDefault();
-                          const e = t.getWrapper();
-                          var a = new FormData(n.target);
-                          let o = [];
-                          const i = a.get("productPrice");
-                          e.find(".colorAndQuantity").forEach((t) => {
-                            const n = t.attributes.attributes.id,
-                              a = e.find(`#colorList${n}`)[0].getEl().value,
-                              r = e.find(`#quantity${n}`)[0].getEl().value;
-                            "Select a Color" === a
-                              ? o.push({
-                                  size: n,
-                                  color: "",
-                                  quantity: r,
-                                  productPrice: i,
-                                })
-                              : o.push({
-                                  size: n,
-                                  color: a,
-                                  quantity: r,
-                                  productPrice: i,
-                                });
-                          }),
-                            0 === o.length && (o = []),
-                            console.log(o),
-                            a.append("cart", JSON.stringify(o)),
-                            a.delete("size"),
-                            a.delete("color"),
-                            a.delete("quantity"),
-                            console.log(Object.fromEntries(a)),
-                            n.target.reset();
+                        submit: (t) => {
+                          t.preventDefault();
                         },
                       },
                     },
@@ -764,7 +742,7 @@
                         draggable: ":not(form)",
                         name: r[2],
                         attributes: {
-                          class: `container mt-4`,
+                          class: `container mt-4 multipleItemForm`,
                           method: "post",
                           action: `${
                             document.location.protocol +
@@ -816,9 +794,10 @@
                               });
                             });
                           }
-                          t.addComponents(
-                            `<script>${a.multipleItemFormScript}<\/script>`
-                          );
+                          t.getHtml().includes(a.multipleItemFormScript) ||
+                            t.addComponents(
+                              `<script>${a.multipleItemFormScript}<\/script>`
+                            );
                           let l =
                               document.head.querySelector(
                                 'meta[name="csrf-token"]'
