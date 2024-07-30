@@ -1,4 +1,4 @@
-/*! api-component - 1.0.59 */
+/*! api-component - 1.0.69 */
 !(function (t, n) {
   "object" == typeof exports && "object" == typeof module
     ? (module.exports = n())
@@ -21,10 +21,10 @@
             e.r(n),
               e.d(n, {
                 basicFormScript: () => i,
-                multipleItemFormScript: () => o,
-                script: () => a,
+                multipleItemFormScript: () => a,
+                script: () => o,
               });
-            const a = function () {
+            const o = function () {
                 function t(t) {
                   const n = document.getElementById("quantity");
                   if (n) {
@@ -36,8 +36,8 @@
                         const n = document.getElementById("productPrice"),
                           e = document.getElementById("showProduct");
                         if (n && e) {
-                          const a = parseFloat(n.value) * t;
-                          e.textContent = a.toFixed(2);
+                          const o = parseFloat(n.value) * t;
+                          e.textContent = o.toFixed(2);
                         }
                       })(e);
                   }
@@ -62,9 +62,9 @@
                         t.preventDefault();
                         const n = new FormData(t.target);
                         let e = [];
-                        for (var a of n.entries())
-                          console.log(a[0] + ": " + a[1]);
-                        const o = n.get("productPrice");
+                        for (var o of n.entries())
+                          console.log(o[0] + ": " + o[1]);
+                        const a = n.get("productPrice");
                         let i = n.get("size");
                         null === i && (i = "");
                         const r = n.get("color"),
@@ -73,7 +73,7 @@
                           size: i,
                           color: r,
                           quantity: s,
-                          productPrice: o,
+                          productPrice: a,
                         }),
                           n.delete("size"),
                           n.delete("color"),
@@ -82,28 +82,47 @@
                           console.log(e),
                           n.append("cart", JSON.stringify(e)),
                           console.log(Object.fromEntries(n)),
+                          fetch(
+                            `${
+                              document.location.protocol +
+                              "//" +
+                              document.location.host
+                            }/checkout`,
+                            { method: "POST", body: n }
+                          )
+                            .then((t) => t.text())
+                            .then((t) => {
+                              t
+                                ? (window.location.href = t)
+                                : console.error(
+                                    "URL not found in the response"
+                                  );
+                            })
+                            .catch((t) => {
+                              console.error("Error:", t);
+                            }),
                           t.target.reset();
                       });
                   });
               },
-              o = `\n  let orderSumList = document.getElementById("orderSumList");\n\n  // Function to update the order summary list\n  const updateOrderSummary = (index, color, quantity, price) => {\n    let listItem = document.getElementById("optionGroup" + index + "Sum");\n    if (!listItem) {\n      listItem = document.createElement("li");\n      listItem.id = "optionGroup" + index + "Sum";\n      listItem.className = "order-summary";\n      listItem.innerHTML = '<a href="javascript:;" class="btn btn-outline-danger" style="border-radius: 50%"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-x" viewBox="0 0 16 16"><path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708"/></svg></a><span class="summary-text"></span><span class="price"></span>';\n\n      orderSumList.appendChild(listItem);\n      \n      // Add click event to remove item\n      listItem.querySelector("a").addEventListener("click", function () {\n        listItem.remove();\n        calculateTotalPrice();\n      });\n    }\n\n    const summaryText = listItem.querySelector(".summary-text");\n    const priceSpan = listItem.querySelector(".price");\n\n    if (quantity > 0) {\n      summaryText.textContent = color + " x " + quantity;\n      priceSpan.textContent = "৳ " + (quantity * price).toFixed(2);\n    } else {\n      listItem.remove();\n    }\n\n    calculateTotalPrice();\n  };\n\n  // Function to calculate the total price\n  const calculateTotalPrice = () => {\n    const totalPriceElement = document.querySelector("#totalPrice");\n    const prices = orderSumList.querySelectorAll(".price");\n    let total = 0;\n\n    prices.forEach((priceSpan) => {\n      const priceText = priceSpan.textContent.replace("৳ ", "");\n      total += parseFloat(priceText);\n    });\n\n    totalPriceElement.value = "৳ " + total.toFixed(2);\n  };\n\n  document\n    .querySelectorAll(".colorAndQuantity")\n    .forEach(function (optionBox, index) {\n      const colorList = optionBox.querySelector(".colorList");\n      const quantityInput = optionBox.querySelector(".quantity");\n\n      colorList.addEventListener("change", function () {\n        const color = colorList.value;\n        const quantity = parseInt(quantityInput.value, 10);\n        const price = parseFloat(document.querySelector("#productPrice").value);\n        updateOrderSummary(index, color, quantity, price);\n      });\n\n      quantityInput.addEventListener("input", function () {\n        const color = colorList.value;\n        const quantity = parseInt(quantityInput.value, 10);\n        const price = parseFloat(document.querySelector("#productPrice").value);\n        updateOrderSummary(index, color, quantity, price);\n      });\n    });\n\n\n    document.addEventListener('DOMContentLoaded', function() {\n  const form = document.querySelector('.multipleItemForm'); \n\n  form.addEventListener('submit', function(e) {\n    e.preventDefault();\n\n    const formData = new FormData(e.target);\n    let cart = [];\n    const productPrice = formData.get("productPrice");\n\n    const sizeComps = document.querySelectorAll('.colorAndQuantity');\n    sizeComps.forEach(function(sizeComp) {\n      const size = sizeComp.id;\n       const color = document.querySelector("#colorList" + size).value;\n      const quantity = document.querySelector("#quantity" + size).value;\n      if (color === "Select a Color") {\n        cart.push({\n          size: size,\n          color: "",\n          quantity: quantity,\n          productPrice: productPrice,\n        });\n      } else {\n        cart.push({\n          size: size,\n          color: color,\n          quantity: quantity,\n          productPrice: productPrice,\n        });\n      }\n    });\n\n    // If cart is empty, add a blank array\n    if (cart.length === 0) {\n      cart = [];\n    }\n    console.log(cart);\n\n    // Append cart array to FormData object as JSON string\n    formData.append("cart", JSON.stringify(cart));\n    formData.delete("size");\n    formData.delete("color");\n    formData.delete("quantity");\n\n    console.log(Object.fromEntries(formData));\n    e.target.reset();\n  });\n});\n\n`,
+              a = `\n  let orderSumList = document.getElementById("orderSumList");\n\n  // Function to update the order summary list\n  const updateOrderSummary = (index, color, quantity, price) => {\n    let listItem = document.getElementById("optionGroup" + index + "Sum");\n    if (!listItem) {\n      listItem = document.createElement("li");\n      listItem.id = "optionGroup" + index + "Sum";\n      listItem.className = "order-summary";\n      listItem.innerHTML = '<a href="javascript:;" class="btn btn-outline-danger" style="border-radius: 50%"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-x" viewBox="0 0 16 16"><path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708"/></svg></a><span class="summary-text"></span><span class="price"></span>';\n\n      orderSumList.appendChild(listItem);\n      \n      // Add click event to remove item\n      listItem.querySelector("a").addEventListener("click", function () {\n        listItem.remove();\n        calculateTotalPrice();\n      });\n    }\n\n    const summaryText = listItem.querySelector(".summary-text");\n    const priceSpan = listItem.querySelector(".price");\n\n    if (quantity > 0) {\n      summaryText.textContent = color + " x " + quantity;\n      priceSpan.textContent = "৳ " + (quantity * price).toFixed(2);\n    } else {\n      listItem.remove();\n    }\n\n    calculateTotalPrice();\n  };\n\n  // Function to calculate the total price\n  const calculateTotalPrice = () => {\n    const totalPriceElement = document.querySelector("#totalPrice");\n    const prices = orderSumList.querySelectorAll(".price");\n    let total = 0;\n\n    prices.forEach((priceSpan) => {\n      const priceText = priceSpan.textContent.replace("৳ ", "");\n      total += parseFloat(priceText);\n    });\n\n    totalPriceElement.value = "৳ " + total.toFixed(2);\n  };\n\n  document\n    .querySelectorAll(".colorAndQuantity")\n    .forEach(function (optionBox, index) {\n      const colorList = optionBox.querySelector(".colorList");\n      const quantityInput = optionBox.querySelector(".quantity");\n\n      colorList.addEventListener("change", function () {\n        const color = colorList.value;\n        const quantity = parseInt(quantityInput.value, 10);\n        const price = parseFloat(document.querySelector("#productPrice").value);\n        updateOrderSummary(index, color, quantity, price);\n      });\n\n      quantityInput.addEventListener("input", function () {\n        const color = colorList.value;\n        const quantity = parseInt(quantityInput.value, 10);\n        const price = parseFloat(document.querySelector("#productPrice").value);\n        updateOrderSummary(index, color, quantity, price);\n      });\n    });\n\n\n    document.addEventListener('DOMContentLoaded', function() {\n  const form = document.querySelector('.multipleItemForm'); \n\n  form.addEventListener('submit', function(e) {\n    e.preventDefault();\n\n    const formData = new FormData(e.target);\n    let cart = [];\n    const productPrice = formData.get("productPrice");\n\n    const sizeComps = document.querySelectorAll('.colorAndQuantity');\n    sizeComps.forEach(function(sizeComp) {\n      const size = sizeComp.id;\n       const color = document.querySelector("#colorList" + size).value;\n      const quantity = document.querySelector("#quantity" + size).value;\n      if (color === "Select a Color") {\n        cart.push({\n          size: size,\n          color: "",\n          quantity: quantity,\n          productPrice: productPrice,\n        });\n      } else {\n        cart.push({\n          size: size,\n          color: color,\n          quantity: quantity,\n          productPrice: productPrice,\n        });\n      }\n    });\n\n    // If cart is empty, add a blank array\n    if (cart.length === 0) {\n      cart = [];\n    }\n    console.log(cart);\n\n    // Append cart array to FormData object as JSON string\n    formData.append("cart", JSON.stringify(cart));\n    formData.delete("size");\n    formData.delete("color");\n    formData.delete("quantity");\n\n    console.log(Object.fromEntries(formData));\n    e.target.reset();\n  });\n});\n\n`,
               i = `\ndocument.addEventListener('DOMContentLoaded', function() {\n  const form = document.querySelector('.basicForm'); \n\n  form.addEventListener('submit', function(e) {\n    e.preventDefault();\n\n    var formData = new FormData(e.target);\n    let cart = [];\n\n    for (var pair of formData.entries()) {\n      console.log(pair[0] + ": " + pair[1]);\n    }\n\n    const size = formData.get("size");\n    const color = formData.get("color");\n    const quantity = formData.get("quantity");\n    const productPrice = formData.get("productPrice");\n\n    if (size && color && quantity && productPrice) {\n      cart.push({\n        size: size,\n        color: color,\n        quantity: quantity,\n        productPrice: productPrice,\n      });\n    }\n\n    // If cart is empty, add a blank array\n    if (cart.length === 0) {\n      cart = [];\n    }\n\n    // Convert cart array to JSON and append it to the FormData object\n    formData.append("cart", JSON.stringify(cart));\n\n    console.log(Object.fromEntries(formData));\n\n\n    e.target.reset();\n  });\n});\n\n`;
           },
           476: function (t, n, e) {
-            var a =
+            var o =
               (this && this.__awaiter) ||
-              function (t, n, e, a) {
-                return new (e || (e = Promise))(function (o, i) {
+              function (t, n, e, o) {
+                return new (e || (e = Promise))(function (a, i) {
                   function r(t) {
                     try {
-                      l(a.next(t));
+                      l(o.next(t));
                     } catch (t) {
                       i(t);
                     }
                   }
                   function s(t) {
                     try {
-                      l(a["throw"](t));
+                      l(o["throw"](t));
                     } catch (t) {
                       i(t);
                     }
@@ -111,7 +130,7 @@
                   function l(t) {
                     var n;
                     t.done
-                      ? o(t.value)
+                      ? a(t.value)
                       : ((n = t.value),
                         n instanceof e
                           ? n
@@ -119,43 +138,46 @@
                               t(n);
                             })).then(r, s);
                   }
-                  l((a = a.apply(t, n || [])).next());
+                  l((o = o.apply(t, n || [])).next());
                 });
               };
             Object.defineProperty(n, "__esModule", { value: !0 });
-            const o = e(126),
+            const a = e(126),
               i = e(535);
+            let r;
             n["default"] = (t, n) =>
-              a(void 0, void 0, void 0, function* () {
-                const { block: e, label: a, id: r } = n;
+              o(void 0, void 0, void 0, function* () {
+                const { block: e, label: o, id: s } = n;
                 if (e) {
-                  const n =
-                    document.location.protocol +
-                    "//" +
-                    document.location.host +
-                    "/api/dev/products";
-                  let s = null;
+                  r =
+                    "localhost:8080" === document.location.host
+                      ? "https://dev.chepapest.com/api/dev/products"
+                      : document.location.protocol +
+                        "//" +
+                        document.location.host +
+                        "/api/dev/products";
+                  let n = null;
                   try {
-                    const l = yield fetch(n);
+                    const l = yield fetch(r);
                     if (!l.ok) throw new Error("Failed to fetch data");
-                    (s = (yield l.json()).data),
+                    (n = (yield l.json()).data),
                       t.BlockManager.add(
-                        r[0],
+                        s[0],
                         Object.assign(
                           {
                             media: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M22 5.5c0-.3-.5-.5-1.3-.5H3.4c-.8 0-1.3.2-1.3.5v3c0 .3.5.5 1.3.5h17.4c.8 0 1.3-.2 1.3-.5v-3zM21 8H3V6h18v2zM22 10.5c0-.3-.5-.5-1.3-.5H3.4c-.8 0-1.3.2-1.3.5v3c0 .3.5.5 1.3.5h17.4c.8 0 1.3-.2 1.3-.5v-3zM21 13H3v-2h18v2z"/><rect width="10" height="3" x="2" y="15" rx=".5"/></svg>`,
-                            label: a[0],
+                            label: o[0],
                             category: "Form",
                             content: {
-                              type: o.typeBasicForm,
-                              data: s,
+                              type: a.typeBasicForm,
+                              data: n,
                               data1: 1,
                               components: [
                                 {
-                                  type: o.typeDiv,
+                                  type: a.typeDiv,
                                   components: [
                                     {
-                                      type: o.typeText,
+                                      type: a.typeText,
                                       components: "Order Form",
                                       attributes: { class: "h1 text-center" },
                                     },
@@ -165,15 +187,15 @@
                                 {
                                   components: [
                                     {
-                                      type: o.typeDiv,
+                                      type: a.typeDiv,
                                       components: [
                                         {
-                                          type: o.typeLabel,
+                                          type: a.typeLabel,
                                           components: "Your Name:",
                                           for: "name",
                                         },
                                         {
-                                          type: o.typeInput,
+                                          type: a.typeInput,
                                           attributes: {
                                             type: "text",
                                             placeholder: "Enter your Name",
@@ -187,15 +209,15 @@
                                 {
                                   components: [
                                     {
-                                      type: o.typeDiv,
+                                      type: a.typeDiv,
                                       components: [
                                         {
-                                          type: o.typeLabel,
+                                          type: a.typeLabel,
                                           components: "Phone Number:",
                                           for: "phone",
                                         },
                                         {
-                                          type: o.typeInput,
+                                          type: a.typeInput,
                                           attributes: {
                                             type: "text",
                                             placeholder: "Enter your Number",
@@ -209,15 +231,15 @@
                                 {
                                   components: [
                                     {
-                                      type: o.typeDiv,
+                                      type: a.typeDiv,
                                       components: [
                                         {
-                                          type: o.typeLabel,
+                                          type: a.typeLabel,
                                           components: "Address:",
                                           for: "address",
                                         },
                                         {
-                                          type: o.typeInput,
+                                          type: a.typeInput,
                                           attributes: {
                                             type: "text",
                                             placeholder: "Enter your Address",
@@ -229,13 +251,13 @@
                                   ],
                                 },
                                 {
-                                  type: o.typeHiddenDiv,
+                                  type: a.typeHiddenDiv,
                                   components: [
                                     {
-                                      type: o.typeHiddenDiv,
+                                      type: a.typeHiddenDiv,
                                       components: [
                                         {
-                                          type: o.typeInput,
+                                          type: a.typeInput,
                                           attributes: {
                                             type: "hidden",
                                             id: "server",
@@ -244,7 +266,7 @@
                                           },
                                         },
                                         {
-                                          type: o.typeInput,
+                                          type: a.typeInput,
                                           attributes: {
                                             type: "hidden",
                                             id: "token",
@@ -253,7 +275,7 @@
                                           },
                                         },
                                         {
-                                          type: o.typeInput,
+                                          type: a.typeInput,
                                           attributes: {
                                             type: "hidden",
                                             id: "productId",
@@ -262,7 +284,7 @@
                                           },
                                         },
                                         {
-                                          type: o.typeInput,
+                                          type: a.typeInput,
                                           attributes: {
                                             type: "hidden",
                                             id: "productPrice",
@@ -271,7 +293,7 @@
                                           },
                                         },
                                         {
-                                          type: o.typeInput,
+                                          type: a.typeInput,
                                           attributes: {
                                             type: "hidden",
                                             id: "quantity",
@@ -280,7 +302,7 @@
                                           },
                                         },
                                         {
-                                          type: o.typeInput,
+                                          type: a.typeInput,
                                           attributes: {
                                             type: "hidden",
                                             id: "formCheck",
@@ -295,10 +317,17 @@
                                 {
                                   components: [
                                     {
-                                      type: o.typeButton,
+                                      type: a.typeButton,
                                       components: "Submit",
                                     },
                                   ],
+                                },
+                                {
+                                  components: `<script id="basicFormScript">\n                document.addEventListener('DOMContentLoaded', function() {\n                const form = document.querySelector('.basicForm'); \n\n                form.addEventListener('submit', function(e) {\n                  e.preventDefault();\n\n                  var formData = new FormData(e.target);\n                  let cart = [];\n\n                  for (var pair of formData.entries()) {\n                    console.log(pair[0] + ": " + pair[1]);\n                  }\n\n                  const size = formData.get("size");\n                  const color = formData.get("color");\n                  const quantity = formData.get("quantity");\n                  const productPrice = formData.get("productPrice");\n\n                  if (size && color && quantity && productPrice) {\n                    cart.push({\n                      size: size,\n                      color: color,\n                      quantity: quantity,\n                      productPrice: productPrice,\n                    });\n                  }\n\n                  // If cart is empty, add a blank array\n                  if (cart.length === 0) {\n                    cart = [];\n                  }\n\n                  // Convert cart array to JSON and append it to the FormData object\n                  formData.append("cart", JSON.stringify(cart));\n                  console.log(Object.fromEntries(formData));\n\n                   fetch('${
+                                    document.location.protocol +
+                                    "//" +
+                                    document.location.host
+                                  }/checkout', {\n                      method: 'POST',\n                      body: formData,\n                    }).then(response => response.text()).then(url => {\n                      if (url) {\n                        window.location.href = url;\n                      } else {\n                        console.error('URL not found in the response');\n                      }\n                    }).catch(error => {\n                      console.error('Error:', error);\n                    });\n                  e.target.reset();\n                });\n              });\n                <\/script>`,
                                 },
                               ],
                             },
@@ -307,15 +336,15 @@
                         )
                       ),
                       t.BlockManager.add(
-                        r[1],
+                        s[1],
                         Object.assign(
                           {
                             media: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M22 5.5c0-.3-.5-.5-1.3-.5H3.4c-.8 0-1.3.2-1.3.5v3c0 .3.5.5 1.3.5h17.4c.8 0 1.3-.2 1.3-.5v-3zM21 8H3V6h18v2zM22 10.5c0-.3-.5-.5-1.3-.5H3.4c-.8 0-1.3.2-1.3.5v3c0 .3.5.5 1.3.5h17.4c.8 0 1.3-.2 1.3-.5v-3zM21 13H3v-2h18v2z"/><rect width="10" height="3" x="2" y="15" rx=".5"/></svg>`,
-                            label: a[1],
+                            label: o[1],
                             category: "Form",
                             content: {
-                              type: o.typeStandardForm,
-                              data: s,
+                              type: a.typeStandardForm,
+                              data: n,
                               components: i.standardForm,
                             },
                           },
@@ -323,15 +352,15 @@
                         )
                       ),
                       t.BlockManager.add(
-                        r[2],
+                        s[2],
                         Object.assign(
                           {
                             media: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M22 5.5c0-.3-.5-.5-1.3-.5H3.4c-.8 0-1.3.2-1.3.5v3c0 .3.5.5 1.3.5h17.4c.8 0 1.3-.2 1.3-.5v-3zM21 8H3V6h18v2zM22 10.5c0-.3-.5-.5-1.3-.5H3.4c-.8 0-1.3.2-1.3.5v3c0 .3.5.5 1.3.5h17.4c.8 0 1.3-.2 1.3-.5v-3zM21 13H3v-2h18v2z"/><rect width="10" height="3" x="2" y="15" rx=".5"/></svg>`,
-                            label: a[2],
+                            label: o[2],
                             category: "Form",
                             content: {
-                              type: o.typemultipleItemForm,
-                              data: s,
+                              type: a.typemultipleItemForm,
+                              data: n,
                               components: i.multipleItemForm,
                             },
                           },
@@ -441,25 +470,25 @@
                     media: `<svg viewBox="0 0 24 24">\n    <path fill="currentColor" d="M2 14H8V20H2M16 8H10V10H16M2 10H8V4H2M10 4V6H22V4M10 20H16V18H10M10 16H22V14H10"/>\n  </svg>`,
                     content: i.listItem + i.listItem,
                   }),
-                  t.BlockManager.add(o.typeSocial, {
+                  t.BlockManager.add(a.typeSocial, {
                     label: "socialGroup",
                     category: "Extra",
                     media: `<svg viewBox="0 0 24 24">\n    <path fill="currentColor" d="M18,16.08C17.24,16.08 16.56,16.38 16.04,16.85L8.91,12.7C8.96,12.47 9,12.24 9,12C9,11.76 8.96,11.53 8.91,11.3L15.96,7.19C16.5,7.69 17.21,8 18,8A3,3 0 0,0 21,5A3,3 0 0,0 18,2A3,3 0 0,0 15,5C15,5.24 15.04,5.47 15.09,5.7L8.04,9.81C7.5,9.31 6.79,9 6,9A3,3 0 0,0 3,12A3,3 0 0,0 6,15C6.79,15 7.5,14.69 8.04,14.19L15.16,18.34C15.11,18.55 15.08,18.77 15.08,19C15.08,20.61 16.39,21.91 18,21.91C19.61,21.91 20.92,20.61 20.92,19A2.92,2.92 0 0,0 18,16.08Z" />\n  </svg>`,
                     content: i.socialGroup,
                   }),
-                  t.BlockManager.add(o.typeNavbar, {
+                  t.BlockManager.add(a.typeNavbar, {
                     label: "Navbar",
                     category: "Extra",
                     media: `<svg viewBox="0 0 24 24">\n    <path fill="currentColor" d="M3,6H21V8H3V6M3,11H21V13H3V11M3,16H21V18H3V16Z" />\n</svg>`,
                     content: i.nav,
                   }),
-                  t.BlockManager.add(o.typeHero, {
+                  t.BlockManager.add(a.typeHero, {
                     label: "Hero Section",
                     category: "Extra",
                     media: `<svg viewBox="0 0 24 24">\n    <path fill="currentColor" d="M20,20H4A2,2 0 0,1 2,18V6A2,2 0 0,1 4,4H20A2,2 0 0,1 22,6V18A2,2 0 0,1 20,20M4,6V18H20V6H4M6,9H18V11H6V9M6,13H16V15H6V13Z" />\n</svg>`,
                     content: i.heroSect,
                   }),
-                  t.BlockManager.add(o.typeWrapper, {
+                  t.BlockManager.add(a.typeWrapper, {
                     label: "Wrapper",
                     category: "Extra",
                     media: `<svg viewBox="0 0 24 24">\n    <path fill="currentColor" d="M18 2H6C4.89 2 4 2.9 4 4V20C4 21.11 4.89 22 6 22H18C19.11 22 20 21.11 20 20V4C20 2.9 19.11 2 18 2M18 20H6V16H18V20M18 8H6V4H18V8Z" />\n</svg>`,
@@ -514,8 +543,8 @@
                 n.typeInput =
                 n.typeBasicForm =
                   void 0);
-            const a = e(879),
-              o = e(707);
+            const o = e(879),
+              a = e(707);
             (n.typeBasicForm = "basicForm"),
               (n.typeInput = "input"),
               (n.typeButton = "button"),
@@ -572,40 +601,36 @@
                         const e = JSON.parse(this.getAttributes().selectedData);
                         console.log(e);
                         const o = t.getWrapper(),
-                          r = o.find(".productId")[0],
-                          s = o.find(".productPrice")[0],
-                          l = o.find(".quantity")[0];
-                        r.set("attributes", {
+                          a = o.find(".productId")[0],
+                          r = o.find(".productPrice")[0],
+                          s = o.find(".quantity")[0];
+                        a.set("attributes", {
                           value: e.id,
                           name: "productId",
                           type: "hidden",
                         }),
-                          s.set("attributes", {
+                          r.set("attributes", {
                             value: e.price,
                             name: "productPrice",
                             type: "hidden",
                           }),
-                          l.set("attributes", {
+                          s.set("attributes", {
                             value: 1,
                             name: "quantity",
                             type: "hidden",
                           });
-                        let c =
+                        let l =
                             document.head.querySelector(
                               'meta[name="csrf-token"]'
                             ) || "{{ csrf_token() }}",
-                          d =
+                          c =
                             null === (n = i.getById("token").view) ||
                             void 0 === n
                               ? void 0
                               : n.attr;
-                        d
-                          ? (d.value = c)
+                        c
+                          ? (c.value = l)
                           : console.error("Token input element not found");
-                        t.getHtml().includes(a.basicFormScript) ||
-                          t.addComponents(
-                            `<script>${a.basicFormScript}<\/script>`
-                          );
                       });
                     },
                   },
@@ -623,7 +648,7 @@
                     },
                     model: {
                       defaults: {
-                        script: a.script,
+                        script: o.script,
                         tagName: "form",
                         droppable: ":not(form)",
                         draggable: ":not(form)",
@@ -639,7 +664,7 @@
                         },
                         traits: [{ type: n.typeBasicForm, name: "product" }],
                         components: { type: c, data: s },
-                        styles: o.standardFormCss,
+                        styles: a.standardFormCss,
                       },
                       init() {
                         this.on("change:attributes:selectedData", () => {
@@ -647,15 +672,15 @@
                           const e = JSON.parse(
                               this.getAttributes().selectedData
                             ),
-                            a = t.getWrapper(),
-                            o = a.find(".productId")[0],
-                            r = a.find(".productPrice")[0],
-                            s = a.find(".showProduct")[0];
+                            o = t.getWrapper(),
+                            a = o.find(".productId")[0],
+                            r = o.find(".productPrice")[0],
+                            s = o.find(".showProduct")[0];
                           s.get("components").reset();
                           const l = s.get("components");
                           if (
-                            (o && r && s
-                              ? (o.set("attributes", {
+                            (a && r && s
+                              ? (a.set("attributes", {
                                   value: e.id,
                                   name: "productId",
                                 }),
@@ -673,35 +698,35 @@
                             e.color)
                           ) {
                             const t = e.color.split(","),
-                              n = a.find("#colorDiv")[0];
+                              n = o.find("#colorDiv")[0];
                             n.set("style", { display: "block" }),
                               n.get("components").reset();
-                            const o = n.get("components");
-                            o.add(
+                            const a = n.get("components");
+                            a.add(
                               `<div style="color: rgb(85, 67, 202); font-size: 18px; font-weight: 400; margin-bottom: 1rem">Color</div>`
                             ),
                               t.forEach((t, n) => {
-                                o.add(
+                                a.add(
                                   `<input type="radio" id="${n}" value=${t} name="color" required>`
                                 ),
-                                  o.add(
+                                  a.add(
                                     `<label class="radio-label" for=${t}>${t}</label><br>`
                                   );
                               });
                           }
                           if (e.size) {
                             const t = e.size.split(","),
-                              n = a.find("#size")[0],
-                              o = n.get("components");
-                            o.reset(), n.set("style", { display: "block" });
-                            const i = o
+                              n = o.find("#size")[0],
+                              a = n.get("components");
+                            a.reset(), n.set("style", { display: "block" });
+                            const i = a
                               .add(`<div class="input-group"> </div>`)
                               .get("components");
                             i.reset(),
                               i.add(
                                 `<select class="form-control input-text js-input" id="sizeSelect" class="sizeSelect" name="size" required>`
                               );
-                            const r = a
+                            const r = o
                               .find("#sizeSelect")[0]
                               .get("components");
                             r.reset(),
@@ -756,7 +781,7 @@
                         },
                         traits: [{ type: n.typeBasicForm, name: "product" }],
                         components: { type: c, data: s },
-                        styles: o.multipleItemFormCss,
+                        styles: a.multipleItemFormCss,
                       },
                       init() {
                         this.on("change:attributes:selectedData", () => {
@@ -766,15 +791,15 @@
                             ),
                             o = t.getWrapper();
                           o.find("#orderSumList")[0].get("components").reset();
-                          const r = o.find(".productId")[0],
-                            s = o.find(".productPrice")[0];
+                          const a = o.find(".productId")[0],
+                            r = o.find(".productPrice")[0];
                           if (
-                            (s.set("attributes", {
+                            (r.set("attributes", {
                               value: e.price,
                               name: "productPrice",
                             }),
-                            s.set("style", { display: "none" }),
-                            r.set("attributes", {
+                            r.set("style", { display: "none" }),
+                            a.set("attributes", {
                               value: e.id,
                               name: "productId",
                             }),
@@ -798,21 +823,17 @@
                               });
                             });
                           }
-                          t.getHtml().includes(a.multipleItemFormScript) ||
-                            t.addComponents(
-                              `<script>${a.multipleItemFormScript}<\/script>`
-                            );
-                          let l =
+                          let s =
                               document.head.querySelector(
                                 'meta[name="csrf-token"]'
                               ) || "{{ csrf_token() }}",
-                            c =
+                            l =
                               null === (n = i.getById("token").view) ||
                               void 0 === n
                                 ? void 0
                                 : n.attr;
-                          c
-                            ? (c.value = l)
+                          l
+                            ? (l.value = s)
                             : console.error("Token input element not found");
                         });
                       },
@@ -1050,8 +1071,10 @@
               (n.collapse = `\n<p class="d-inline-flex gap-1">\n<a class="btn btn-primary" data-bs-toggle="collapse" href="#multiCollapseExample1" role="button" aria-expanded="false" aria-controls="multiCollapseExample1"><span>Toggle element</span></a>\n</p>\n<div class="row rowClass">\n<div class="col">\n<div class="collapse multi-collapse" id="multiCollapseExample1">\n  <div class="card card-body">\n  <p class="fs-6"> Some placeholder content for the first collapse component of this multi-collapse example. This panel is hidden by default but revealed when the user activates the relevant trigger.</p>\n  </div>\n</div>\n</div>\n</div>\n`),
               (n.tabs = `\n<ul class="nav nav-tabs myTab" id="myTab" role="tablist">\n<li class="nav-item" role="presentation">\n  <button class="nav-link active" id="home-tab" data-bs-toggle="tab" data-bs-target="#home-tab-pane" type="button" role="tab" aria-controls="home-tab-pane" aria-selected="true"><p class="fs-6" style="margin-bottom: 0rem;">Home</p></button>\n</li>\n<li class="nav-item" role="presentation">\n  <button class="nav-link" id="profile-tab" data-bs-toggle="tab" data-bs-target="#profile-tab-pane" type="button" role="tab" aria-controls="profile-tab-pane" aria-selected="false"><p class="fs-6" style="margin-bottom: 0rem;">Profile</p></button>\n</li>\n<li class="nav-item" role="presentation">\n  <button class="nav-link" id="contact-tab" data-bs-toggle="tab" data-bs-target="#contact-tab-pane" type="button" role="tab" aria-controls="contact-tab-pane" aria-selected="false"><p class="fs-6" style="margin-bottom: 0rem;">Contact</p></button>\n</li>\n</ul>\n<div class="tab-content border border-secondary myTab" id="myTabContent">\n<div class="tab-pane fade show active" id="home-tab-pane" role="tabpanel" aria-labelledby="home-tab" tabindex="0">\n<p class="fs-6" style="margin-bottom: 0rem;">\nLorem ipsum dolor sit amet consectetur adipisicing elit. Provident reiciendis ullam expedita sed ipsum tenetur laudantium architecto cumque esse accusamus praesentium quas eos quasi repellendus, a rem. Hic, soluta iusto?\n</p>\n</div>\n<div class="tab-pane fade" id="profile-tab-pane" role="tabpanel" aria-labelledby="profile-tab" tabindex="0">\n<p class="fs-6" style="margin-bottom: 0rem;">\nLorem ipsum dolor sit, amet consectetur adipisicing elit. Ratione, velit quasi. Reprehenderit, quidem quos. Quibusdam, in? Veniam quas obcaecati eligendi maxime perferendis, atque ducimus cumque, praesentium voluptas delectus laboriosam quis necessitatibus ratione perspiciatis voluptatibus iusto.\n</p>\n</div>\n<div class="tab-pane fade" id="contact-tab-pane" role="tabpanel" aria-labelledby="contact-tab" tabindex="0">\n<p class="fs-6" style="margin-bottom: 0rem;">\nLorem, ipsum dolor sit amet consectetur adipisicing elit. Natus, facilis. Rerum, ad? Facilis ipsa illum quaerat corrupti earum? Sequi, distinctio!\n</p>\n</div>\n</div>\n\n<style>\n.myTab {\nwidth: 25rem;\n}\n@media only screen and (max-width: 600px) {\n.myTab{\n  width: 100% !important;\n}\n}\n</style>\n`),
               (n.footer = `\n<footer class="w-100 py-4 flex-shrink-0">\n<div class="container py-4">\n    <div class="row">\n        <div class="col-lg-4 col-md-6">\n            <h5 class="h1 text-white">FB.</h5>\n            <p class="small text-white">Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt.</p>\n            <p class="small mb-0 text-whte">&copy; Copyrights. All rights reserved. <a class="text-primary" href="#">Bootstrapious.com</a></p>\n        </div>\n        <div class="col-lg-2 col-md-6">\n            <h5 class="text-white mb-3">Quick links</h5>\n            <ul class="list-unstyled text-muted">\n                <li><a href="#"><span>Home</span></a></li>\n                <li><a href="#"><span>About</span></a></li>\n                <li><a href="#"><span>Get started</span></a></li>\n                <li><a href="#"><span>FAQ</span></a></li>\n            </ul>\n        </div>\n        <div class="col-lg-2 col-md-6">\n            <h5 class="text-white mb-3">Quick links</h5>\n            <ul class="list-unstyled text-muted">\n            <li><a href="#"><span>Home</span></a></li>\n                <li><a href="#"><span>About</span></a></li>\n                <li><a href="#"><span>Get started</span></a></li>\n                <li><a href="#"><span>FAQ</span></a></li>\n            </ul>\n        </div>\n        <div class="col-lg-4 col-md-6">\n            <h5 class="text-white mb-3">Newsletter</h5>\n            <p class="small  text-white">Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt. Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt. Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt.</p>\n        </div>\n    </div>\n</div>\n</footer>\n\n<style>\n\nfooter {\nbackground: #212529;\n}\na {\ncolor: white;\ntext-decoration: none;\ntransition: all 0.3s;\n}\n\na:hover, a:focus {\ntext-decoration: none;\n}\n</style>\n`),
-              (n.standardForm = `\n          <section class="get-in-touch">\n   <h1 class="title">Order Form</h1>\n   <section class="contact-form row">\n      <div class="form-field col-lg-6">\n         <input id="name" name="name" class="input-text js-input" type="text" required>\n         <label class="label" for="name">Name</label>\n      </div>\n       <div class="form-field col-lg-6 ">\n         <input id="phone" name="phone" class="input-text js-input" type="text" required>\n         <label class="label" for="phone">Contact Number</label>\n      </div>\n      <div class="form-field col-lg-12">\n         <input id="address" name="address" class="input-text js-input" type="text" required>\n         <label class="label" for="address">Address</label>\n      </div>\n\n      <div class="form-field col-lg-6" id="size"> </div>\n\n      <div class="form-field col-lg-6">\n          <div style="color: rgb(85, 67, 202); font-size: 18px; font-weight: 400; margin-bottom: 1rem">Select Quantity</div>\n            <div class="quantity-selector">\n              <button type="button" class="btn input-text btn-outline-secondary quantity-input js-input input-text-sm " id="decrease" onclick="updateQuantity()">-</button>\n              <input type="text" class="form-control quantity-input-sm" id="quantity" value="1" readonly name="quantity">\n              <button type="button" class="btn input-text btn-outline-secondary quantity-input js-input input-text-sm" id="increase" onclick="updateQuantity()">+</button>\n            </div>\n      </div>\n\n      <div class="form-field col-lg-6" id="colorDiv"> </div>\n\n\n      <div class="form-field col-lg-6" id="shipping">\n       <div style="color: rgb(85, 67, 202); font-size: 18px; font-weight: 400;">Shipping</div>\n       <p style="font-size: 20px; font-weight: 600; margin-right: 5px;" id="cashOnDelivery">Cash on Delivery</p>\n         <input type="radio" id="insideDhaka" value="60" name="insideDhaka" required>\n        <label class="radio-label" for="insideDhaka">Inside Dhaka: 60 BDT</label><br>\n        <input type="radio" id="outsideDhaka" value="120" name="insideDhaka" required>\n        <label class="radio-label" for="outsideDhaka">Outside Dhaka: 120 BDT</label><br>\n      </div>\n\n        <div class="form-field col-lg-12" style="display: none;">\n         <input type="hidden" id="server" name="landingpage" value="true">\n         <input type="hidden" id="token" name="_token" value="{{ csrf_token() }}">\n         <input type="hidden" id="productId" name="productId" class="productId" value="">\n         <input type="hidden" id="formCheck" name="formCheck" value="Standard Form">\n        </div>\n\n\n      <div class="form-field col-lg-6" id="priceDiv">\n        <div style="color: rgb(85, 67, 202); font-size: 18px; font-weight: 400; margin-bottom: 1rem">Total Price</div>\n        <span style="font-size: 20px; font-weight: 600; margin-right: 5px;" class="showProduct"></span>\n        <input type="hidden" id="productPrice" name="productPrice" class="productPrice" value="0">\n      </div>\n\n\n      <div class="form-field col-lg-12">\n         <input class="submit-btn" type="submit" value="Submit">\n      </div>\n   </section>\n</section>\n`),
-              (n.multipleItemForm = `\n          <section class="multiple-item-form">\n            \t\t<div class="sub-header">\n                  <div class="container">\n                    <h1>Order Form</h1>\n                  </div>\n                </div>\n            \t\t\t<div class="order">\n\t\t\t\t<div class="container">\n\t\t\t\t\t\t<div class="row">\n\t\t\t\t\t\t\t<div class="col-lg-8" id="mainContent">\n\n\t\t\t\t\t\t\t\t<div id="sizeGroup" class="row option-box sizeColorAndQuantity"> </div>\n\n\t\t\t\t\t\t\t\t<div id="extraOptionGroup1" class="row option-box">\n\t\t\t\t\t\t\t\t\t<div class="option-box-header">\n\t\t\t\t\t\t\t\t\t\t<h3>ক্যাশ অন ডেলিভারি (হোম ডেলিভারি)</h3>\n\t\t\t\t\t\t\t\t\t\t<p>আপনি যদি ক্যাশ অন ডেলিভারি চান তাহলে নিচের অপশনটি চেক করুন</p>\n\t\t\t\t\t\t\t\t\t</div>\n\n\t\t\t\t\t\t\t\t\t<div class="col-md-12 col-sm-12 checkbox">\n                  <div class="checkbox-wrapper-7">\n                      <input class="tgl tgl-ios" id="cb2-7" type="checkbox"/>\n                      <label class="tgl-btn" for="cb2-7">\n                    </div>\n\t\t\t\t\t\t\t\t\t\t<label class="radio-label" for="cashOnDelivery">ক্যাশ অন ডেলিভারি</label>\n\t\t\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t\t\t</div>\n\n                <div class="row option-box" id="shipping">\n                \t\t<div class="option-box-header">\n\t\t\t\t\t\t\t\t\t\t<h3>শিপিং ফি</h3>\n\t\t\t\t\t\t\t\t\t</div>\n                  <div class="form-group">\n                    <input type="radio" id="insideDhaka" value="60" name="insideDhaka" required>\n                    <label class="radio-label" for="insideDhaka">Inside Dhaka: 60 BDT</label><br>\n\t\t\t\t\t\t\t\t\t</div>\n                  <div class="form-group">\n                    <input type="radio" id="outsideDhaka" value="120" name="insideDhaka" required>\n                    <label class="radio-label" for="outsideDhaka">Outside Dhaka: 120 BDT</label><br>\n\t\t\t\t\t\t\t\t\t</div>\n                </div>\n\n                \n\t\t\t\t\t\t\t\t<div id="personalDetails">\n\t\t\t\t\t\t\t\t\t<div class="row">\n\t\t\t\t\t\t\t\t\t\t<div class="order-box-header">\n\t\t\t\t\t\t\t\t\t\t\t<h3>অর্ডার করতে নিচের ফর্মটি সঠিক তথ্য দিয়ে পূরণ করুন</h3>\n\t\t\t\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t\t\t\t\t<div class="col-md-6 col-sm-6">\n\t\t\t\t\t\t\t\t\t\t\t<div class="form-group">\n\t\t\t\t\t\t\t\t\t\t\t\t<label>Name</label>\n\t\t\t\t\t\t\t\t\t\t\t\t<input id="username" class="form-control" name="name" placeholder="Enter Full Name" type="text" required />\n\t\t\t\t\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t\t\t\t\t</div>\n                    \t<div class="col-md-6 col-sm-6">\n\t\t\t\t\t\t\t\t\t\t\t<div class="form-group">\n\t\t\t\t\t\t\t\t\t\t\t\t<label>Phone</label>\n\t\t\t\t\t\t\t\t\t\t\t\t<input id="phone" class="form-control" name="phone" placeholder="Enter Phone e.g.: 01711111111" type="text" required/>\n\t\t\t\t\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t\t\t\t</div>\n\n\t\t\t\t\t\t\t\t\t<div class="row">\n\t\t\t\t\t\t\t\t\t\t<div class="col-md-6 col-md-12">\n\t\t\t\t\t\t\t\t\t\t\t<div class="form-group">\n\t\t\t\t\t\t\t\t\t\t\t\t<label>Address</label>\n\t\t\t\t\t\t\t\t\t\t\t\t<input id="address" class="form-control" name="address" placeholder="Enter Address" type="text" required />\n\t\t\t\t\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t\t\t\t</div>\n\n\t\t\t\t\t\t\t\t\t<div class="row">\n\t\t\t\t\t\t\t\t\t\t<div class="col-md-12">\n\t\t\t\t\t\t\t\t\t\t\t<div class="form-group">\n\t\t\t\t\t\t\t\t\t\t\t\t<label>Message</label>\n\t\t\t\t\t\t\t\t\t\t\t\t<textarea id="inputMessage" class="form-control" name="message" placeholder="Enter Message"></textarea>\n\t\t\t\t\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t\t\t\t</div>\n\n                     <div class="form-field col-lg-12" style="display: none;">\n                      <input type="hidden" id="server" name="landingpage" value="true">\n                      <input type="hidden" id="token" name="_token" value="{{ csrf_token() }}">\n                      <input type="hidden" id="productId" name="productId" class="productId" value="">\n                      <input type="hidden" id="formCheck" name="formCheck" value="Multiple Item Form">\n                      <input type="hidden" id="productPrice" name="productPrice" class="productPrice" value="0">\n                    </div>\n\n\n\t\t\t\t\t\t\t\t\t<div class="row">\n\t\t\t\t\t\t\t\t\t\t<div class="col-md-12">\n                      <div class="order-box-header">\n                        <h3>আরও তথ্যের জন্য, এই নম্বরে যোগাযোগ করুন 01711111111</h3>\n                      </div>  \n\t\t\t\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t\t\t\t</div>\n\n\t\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t\t</div>\n\n\t\t\t\t\t\t\t<div class="col-lg-4" id="sidebar">\n\t\t\t\t\t\t\t\t<div id="orderContainer" class="theiaStickySidebar">\n\t\t\t\t\t\t\t\t\t<div class="row">\n\t\t\t\t\t\t\t\t\t\t<div class="col-md-12">\n\t\t\t\t\t\t\t\t\t\t\t<h3>Order Summary</h3>\n\n\n\t\t\t\t\t\t\t\t\t\t\t<ul id="orderSumList"></ul>\n\n\t\t\t\t\t\t\t\t\t\t\t<div class="row total-container">\n\t\t\t\t\t\t\t\t\t\t\t\t<div class="col-6 p-0">\n                        <label>Total Price</label>\n\t\t\t\t\t\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t\t\t\t\t\t\t<div class="col-6 p-0">\n\t\t\t\t\t\t\t\t\t\t\t\t\t<input type="text" id="totalPrice" class="summaryInput" name="total" value="৳ 0"\n\t\t\t\t\t\t\t\t\t\t\t\t\t\tdisabled />\n\t\t\t\t\t\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t\t\t\t<div class="row">\n\t\t\t\t\t\t\t\t\t\t<div class="col-lg-12">\n\t\t\t\t\t\t\t\t\t\t\t<button type="submit" name="submit" class="btn-form-func">\n\t\t\t\t\t\t\t\t\t\t\t\t<span class="btn-form-func-content">SUBMIT</span>\n\t\t\t\t\t\t\t\t\t\t\t</button>\n\t\t\t\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t\t\t\t</div>\n\t\t\t\t\n\t\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\n\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t</div>\n\t\t\t\t</div>\n\t\t\t</div>\n          </section>`);
+              (n.standardForm = `\n          <section class="get-in-touch">\n   <h1 class="title">Order Form</h1>\n   <section class="contact-form row">\n      <div class="form-field col-lg-6">\n         <input id="name" name="name" class="input-text js-input" type="text" required>\n         <label class="label" for="name">Name</label>\n      </div>\n       <div class="form-field col-lg-6 ">\n         <input id="phone" name="phone" class="input-text js-input" type="text" required>\n         <label class="label" for="phone">Contact Number</label>\n      </div>\n      <div class="form-field col-lg-12">\n         <input id="address" name="address" class="input-text js-input" type="text" required>\n         <label class="label" for="address">Address</label>\n      </div>\n\n      <div class="form-field col-lg-6" id="size"> </div>\n\n      <div class="form-field col-lg-6">\n          <div style="color: rgb(85, 67, 202); font-size: 18px; font-weight: 400; margin-bottom: 1rem">Select Quantity</div>\n            <div class="quantity-selector">\n              <button type="button" class="btn input-text btn-outline-secondary quantity-input js-input input-text-sm " id="decrease" onclick="updateQuantity()">-</button>\n              <input type="text" class="form-control quantity-input-sm" id="quantity" value="1" readonly name="quantity">\n              <button type="button" class="btn input-text btn-outline-secondary quantity-input js-input input-text-sm" id="increase" onclick="updateQuantity()">+</button>\n            </div>\n      </div>\n\n      <div class="form-field col-lg-6" id="colorDiv"> </div>\n\n      <div class="form-field col-lg-6" id="shipping">\n       <div style="color: rgb(85, 67, 202); font-size: 18px; font-weight: 400;">Shipping</div>\n       <p style="font-size: 20px; font-weight: 600; margin-right: 5px;" id="cashOnDelivery">Cash on Delivery</p>\n         <input type="radio" id="insideDhaka" value="60" name="insideDhaka" required>\n        <label class="radio-label" for="insideDhaka">Inside Dhaka: 60 BDT</label><br>\n        <input type="radio" id="outsideDhaka" value="120" name="insideDhaka" required>\n        <label class="radio-label" for="outsideDhaka">Outside Dhaka: 120 BDT</label><br>\n      </div>\n\n        <div class="form-field col-lg-12" style="display: none;">\n         <input type="hidden" id="server" name="landingpage" value="true">\n         <input type="hidden" id="token" name="_token" value="{{ csrf_token() }}">\n         <input type="hidden" id="productId" name="productId" class="productId" value="">\n         <input type="hidden" id="formCheck" name="formCheck" value="Standard Form">\n        </div>\n\n      <div class="form-field col-lg-6" id="priceDiv">\n        <div style="color: rgb(85, 67, 202); font-size: 18px; font-weight: 400; margin-bottom: 1rem">Total Price</div>\n        <span style="font-size: 20px; font-weight: 600; margin-right: 5px;" class="showProduct"></span>\n        <input type="hidden" id="productPrice" name="productPrice" class="productPrice" value="0">\n      </div>\n\n\n      <div class="form-field col-lg-12">\n         <input class="submit-btn" type="submit" value="Submit">\n      </div>\n   </section>\n</section>\n`),
+              (n.multipleItemForm = `\n          <section class="multiple-item-form">\n            \t\t<div class="sub-header">\n                  <div class="container">\n                    <h1>Order Form</h1>\n                  </div>\n                </div>\n            \t\t\t<div class="order">\n\t\t\t\t<div class="container">\n\t\t\t\t\t\t<div class="row">\n\t\t\t\t\t\t\t<div class="col-lg-8" id="mainContent">\n\n\t\t\t\t\t\t\t\t<div id="sizeGroup" class="row option-box sizeColorAndQuantity"> </div>\n\n\t\t\t\t\t\t\t\t<div id="extraOptionGroup1" class="row option-box">\n\t\t\t\t\t\t\t\t\t<div class="option-box-header">\n\t\t\t\t\t\t\t\t\t\t<h3>ক্যাশ অন ডেলিভারি (হোম ডেলিভারি)</h3>\n\t\t\t\t\t\t\t\t\t\t<p>আপনি যদি ক্যাশ অন ডেলিভারি চান তাহলে নিচের অপশনটি চেক করুন</p>\n\t\t\t\t\t\t\t\t\t</div>\n\n\t\t\t\t\t\t\t\t\t<div class="col-md-12 col-sm-12 checkbox">\n                  <div class="checkbox-wrapper-7">\n                      <input class="tgl tgl-ios" id="cb2-7" type="checkbox"/>\n                      <label class="tgl-btn" for="cb2-7">\n                    </div>\n\t\t\t\t\t\t\t\t\t\t<label class="radio-label" for="cashOnDelivery">ক্যাশ অন ডেলিভারি</label>\n\t\t\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t\t\t</div>\n\n                <div class="row option-box" id="shipping">\n                \t\t<div class="option-box-header">\n\t\t\t\t\t\t\t\t\t\t<h3>শিপিং ফি</h3>\n\t\t\t\t\t\t\t\t\t</div>\n                  <div class="form-group">\n                    <input type="radio" id="insideDhaka" value="60" name="insideDhaka" required>\n                    <label class="radio-label" for="insideDhaka">Inside Dhaka: 60 BDT</label><br>\n\t\t\t\t\t\t\t\t\t</div>\n                  <div class="form-group">\n                    <input type="radio" id="outsideDhaka" value="120" name="insideDhaka" required>\n                    <label class="radio-label" for="outsideDhaka">Outside Dhaka: 120 BDT</label><br>\n\t\t\t\t\t\t\t\t\t</div>\n                </div>\n\n                \n\t\t\t\t\t\t\t\t<div id="personalDetails">\n\t\t\t\t\t\t\t\t\t<div class="row">\n\t\t\t\t\t\t\t\t\t\t<div class="order-box-header">\n\t\t\t\t\t\t\t\t\t\t\t<h3>অর্ডার করতে নিচের ফর্মটি সঠিক তথ্য দিয়ে পূরণ করুন</h3>\n\t\t\t\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t\t\t\t\t<div class="col-md-6 col-sm-6">\n\t\t\t\t\t\t\t\t\t\t\t<div class="form-group">\n\t\t\t\t\t\t\t\t\t\t\t\t<label>Name</label>\n\t\t\t\t\t\t\t\t\t\t\t\t<input id="username" class="form-control" name="name" placeholder="Enter Full Name" type="text" required />\n\t\t\t\t\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t\t\t\t\t</div>\n                    \t<div class="col-md-6 col-sm-6">\n\t\t\t\t\t\t\t\t\t\t\t<div class="form-group">\n\t\t\t\t\t\t\t\t\t\t\t\t<label>Phone</label>\n\t\t\t\t\t\t\t\t\t\t\t\t<input id="phone" class="form-control" name="phone" placeholder="Enter Phone e.g.: 01711111111" type="text" required/>\n\t\t\t\t\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t\t\t\t</div>\n\n\t\t\t\t\t\t\t\t\t<div class="row">\n\t\t\t\t\t\t\t\t\t\t<div class="col-md-6 col-md-12">\n\t\t\t\t\t\t\t\t\t\t\t<div class="form-group">\n\t\t\t\t\t\t\t\t\t\t\t\t<label>Address</label>\n\t\t\t\t\t\t\t\t\t\t\t\t<input id="address" class="form-control" name="address" placeholder="Enter Address" type="text" required />\n\t\t\t\t\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t\t\t\t</div>\n\n\t\t\t\t\t\t\t\t\t<div class="row">\n\t\t\t\t\t\t\t\t\t\t<div class="col-md-12">\n\t\t\t\t\t\t\t\t\t\t\t<div class="form-group">\n\t\t\t\t\t\t\t\t\t\t\t\t<label>Message</label>\n\t\t\t\t\t\t\t\t\t\t\t\t<textarea id="inputMessage" class="form-control" name="message" placeholder="Enter Message"></textarea>\n\t\t\t\t\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t\t\t\t</div>\n\n                     <div class="form-field col-lg-12" style="display: none;">\n                      <input type="hidden" id="server" name="landingpage" value="true">\n                      <input type="hidden" id="token" name="_token" value="{{ csrf_token() }}">\n                      <input type="hidden" id="productId" name="productId" class="productId" value="">\n                      <input type="hidden" id="formCheck" name="formCheck" value="Multiple Item Form">\n                      <input type="hidden" id="productPrice" name="productPrice" class="productPrice" value="0">\n                    </div>\n\n\n\t\t\t\t\t\t\t\t\t<div class="row">\n\t\t\t\t\t\t\t\t\t\t<div class="col-md-12">\n                      <div class="order-box-header">\n                        <h3>আরও তথ্যের জন্য, এই নম্বরে যোগাযোগ করুন 01711111111</h3>\n                      </div>  \n\t\t\t\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t\t\t\t</div>\n\n\t\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t\t</div>\n\n\t\t\t\t\t\t\t<div class="col-lg-4" id="sidebar">\n\t\t\t\t\t\t\t\t<div id="orderContainer" class="theiaStickySidebar">\n\t\t\t\t\t\t\t\t\t<div class="row">\n\t\t\t\t\t\t\t\t\t\t<div class="col-md-12">\n\t\t\t\t\t\t\t\t\t\t\t<h3>Order Summary</h3>\n\n\n\t\t\t\t\t\t\t\t\t\t\t<ul id="orderSumList"></ul>\n\n\t\t\t\t\t\t\t\t\t\t\t<div class="row total-container">\n\t\t\t\t\t\t\t\t\t\t\t\t<div class="col-6 p-0">\n                        <label>Total Price</label>\n\t\t\t\t\t\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t\t\t\t\t\t\t<div class="col-6 p-0">\n\t\t\t\t\t\t\t\t\t\t\t\t\t<input type="text" id="totalPrice" class="summaryInput" name="total" value="৳ 0"\n\t\t\t\t\t\t\t\t\t\t\t\t\t\tdisabled />\n\t\t\t\t\t\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t\t\t\t<div class="row">\n\t\t\t\t\t\t\t\t\t\t<div class="col-lg-12">\n\t\t\t\t\t\t\t\t\t\t\t<button type="submit" name="submit" class="btn-form-func">\n\t\t\t\t\t\t\t\t\t\t\t\t<span class="btn-form-func-content">SUBMIT</span>\n\t\t\t\t\t\t\t\t\t\t\t</button>\n\t\t\t\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t\t\t\t</div>\n\t\t\t\t\n\t\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\n\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t</div>\n\t\t\t\t</div>\n\t\t\t</div>\n          </section>\n          \n          <script id="multipleFormScript">\n            let orderSumList = document.getElementById("orderSumList");\n\n  // Function to update the order summary list\n  const updateOrderSummary = (index, color, quantity, price) => {\n    let listItem = document.getElementById("optionGroup" + index + "Sum");\n    if (!listItem) {\n      listItem = document.createElement("li");\n      listItem.id = "optionGroup" + index + "Sum";\n      listItem.className = "order-summary";\n      listItem.innerHTML = '<a href="javascript:;" class="btn btn-outline-danger" style="border-radius: 50%"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-x" viewBox="0 0 16 16"><path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708"/></svg></a><span class="summary-text"></span><span class="price"></span>';\n\n      orderSumList.appendChild(listItem);\n      \n      // Add click event to remove item\n      listItem.querySelector("a").addEventListener("click", function () {\n        listItem.remove();\n        calculateTotalPrice();\n      });\n    }\n\n    const summaryText = listItem.querySelector(".summary-text");\n    const priceSpan = listItem.querySelector(".price");\n\n    if (quantity > 0) {\n      summaryText.textContent = color + " x " + quantity;\n      priceSpan.textContent = "৳ " + (quantity * price).toFixed(2);\n    } else {\n      listItem.remove();\n    }\n\n    calculateTotalPrice();\n  };\n\n  // Function to calculate the total price\n  const calculateTotalPrice = () => {\n    const totalPriceElement = document.querySelector("#totalPrice");\n    const prices = orderSumList.querySelectorAll(".price");\n    let total = 0;\n\n    prices.forEach((priceSpan) => {\n      const priceText = priceSpan.textContent.replace("৳ ", "");\n      total += parseFloat(priceText);\n    });\n\n    totalPriceElement.value = "৳ " + total.toFixed(2);\n  };\n\n  document\n    .querySelectorAll(".colorAndQuantity")\n    .forEach(function (optionBox, index) {\n      const colorList = optionBox.querySelector(".colorList");\n      const quantityInput = optionBox.querySelector(".quantity");\n\n      colorList.addEventListener("change", function () {\n        const color = colorList.value;\n        const quantity = parseInt(quantityInput.value, 10);\n        const price = parseFloat(document.querySelector("#productPrice").value);\n        updateOrderSummary(index, color, quantity, price);\n      });\n\n      quantityInput.addEventListener("input", function () {\n        const color = colorList.value;\n        const quantity = parseInt(quantityInput.value, 10);\n        const price = parseFloat(document.querySelector("#productPrice").value);\n        updateOrderSummary(index, color, quantity, price);\n      });\n    });\n\n\n    document.addEventListener('DOMContentLoaded', function() {\n  const form = document.querySelector('.multipleItemForm'); \n\n  form.addEventListener('submit', function(e) {\n    e.preventDefault();\n    const formData = new FormData(e.target);\n    let cart = [];\n    const productPrice = formData.get("productPrice");\n\n    const sizeComps = document.querySelectorAll('.colorAndQuantity');\n    sizeComps.forEach(function(sizeComp) {\n      const size = sizeComp.id;\n       const color = document.querySelector("#colorList" + size).value;\n      const quantity = document.querySelector("#quantity" + size).value;\n      if (color === "Select a Color") {\n        cart.push({\n          size: size,\n          color: "",\n          quantity: quantity,\n          productPrice: productPrice,\n        });\n      } else {\n        cart.push({\n          size: size,\n          color: color,\n          quantity: quantity,\n          productPrice: productPrice,\n        });\n      }\n    });\n\n    // If cart is empty, add a blank array\n    if (cart.length === 0) {\n      cart = [];\n    }\n    console.log(cart);\n\n    // Append cart array to FormData object as JSON string\n    formData.append("cart", JSON.stringify(cart));\n    formData.delete("size");\n    formData.delete("color");\n    formData.delete("quantity");\n\n    console.log(Object.fromEntries(formData));\n       fetch('${
+                document.location.protocol + "//" + document.location.host
+              }/checkout', {\n        method: 'POST',\n        body: formData,\n      }).then(response => response.text()).then(url => {\n        if (url) {\n          window.location.href = url;\n        } else {\n          console.error('URL not found in the response');\n        }\n      }).catch(error => {\n        console.error('Error:', error);\n      });\n    e.target.reset();\n  });\n});\n          <\/script>\n          `);
           },
           707: (t, n) => {
             Object.defineProperty(n, "__esModule", { value: !0 }),
@@ -1060,20 +1083,20 @@
               (n.standardFormCss = `\n        .get-in-touch {\n          max-width: 800px;\n          margin: 50px auto;\n          position: relative;\n\n        }\n        .get-in-touch .title {\n          text-align: center;\n          text-transform: uppercase;\n          letter-spacing: 3px;\n          font-size: 3.2em;\n          line-height: 48px;\n          padding-bottom: 48px;\n            color: #5543ca;\n            background: #5543ca;\n            background: -moz-linear-gradient(left,#f4524d  0%,#5543ca 100%) !important;\n            background: -webkit-linear-gradient(left,#f4524d  0%,#5543ca 100%) !important;\n            background: linear-gradient(to right,#f4524d  0%,#5543ca  100%) !important;\n            -webkit-background-clip: text !important;\n            -webkit-text-fill-color: transparent !important;\n        }\n\n      .contact-form .form-field {\n        position: relative;\n        margin: 32px 0;\n      }\n      .contact-form .input-text {\n        display: block;\n        width: 100%;\n        height: 36px;\n        border-width: 0 0 2px 0;\n        border-color: #5543ca;\n        font-size: 18px;\n        line-height: 26px;\n        font-weight: 400;\n      }\n\n        .contact-form .input-text:focus {\n          outline: none;\n        }\n          .radio-label{\n            margin-left: 1rem;\n            font-size: 15px;\n            font-weight: 400;\n                border-bottom: 2px solid rgb(85, 67, 202);\n          }\n        .quantity-selector {\n          display: flex;\n          align-items: center;\n          gap: 1rem;\n        }\n          .quantity-input-sm {\n            width: 50px;\n            text-align: center;\n          }\n          .quantity-input {\n          text-align: center;\n          width: 40px !important;\n          height: 37px !important;\n          padding-bottom: 32px;\n          font-size: 27px !important;\n          }\n          .input-text-sm:hover {\n         color: #r3r3r3;\n          }\n        .contact-form .input-text:focus + .label,\n        .contact-form .input-text.not-empty + .label {\n          -webkit-transform: translateY(-24px);\n                  transform: translateY(-24px);\n        }\n        .contact-form .label {\n          position: absolute;\n          left: 20px;\n          bottom: 11px;\n          font-size: 18px;\n          line-height: 26px;\n          font-weight: 400;\n          color: #5543ca;\n          cursor: text;\n          transition: -webkit-transform .2s ease-in-out;\n          transition: transform .2s ease-in-out;\n          transition: transform .2s ease-in-out, \n          -webkit-transform .2s ease-in-out;\n        }\n        .contact-form .submit-btn {\n          display: inline-block;\n          background-color: #000;\n          background-image: linear-gradient(125deg,#a72879,#064497);\n          color: #fff;\n          text-transform: uppercase;\n          letter-spacing: 2px;\n          font-size: 16px;\n          padding: 8px 16px;\n          border: none;\n          width:200px;\n          cursor: pointer;\n        }\n\n        #colorDiv, #size{\n        display: none;\n        }\n        \n        `);
           },
           440: function (t, n, e) {
-            var a =
+            var o =
                 (this && this.__awaiter) ||
-                function (t, n, e, a) {
-                  return new (e || (e = Promise))(function (o, i) {
+                function (t, n, e, o) {
+                  return new (e || (e = Promise))(function (a, i) {
                     function r(t) {
                       try {
-                        l(a.next(t));
+                        l(o.next(t));
                       } catch (t) {
                         i(t);
                       }
                     }
                     function s(t) {
                       try {
-                        l(a["throw"](t));
+                        l(o["throw"](t));
                       } catch (t) {
                         i(t);
                       }
@@ -1081,7 +1104,7 @@
                     function l(t) {
                       var n;
                       t.done
-                        ? o(t.value)
+                        ? a(t.value)
                         : ((n = t.value),
                           n instanceof e
                             ? n
@@ -1089,21 +1112,21 @@
                                 t(n);
                               })).then(r, s);
                     }
-                    l((a = a.apply(t, n || [])).next());
+                    l((o = o.apply(t, n || [])).next());
                   });
                 },
-              o =
+              a =
                 (this && this.__importDefault) ||
                 function (t) {
                   return t && t.__esModule ? t : { default: t };
                 };
             Object.defineProperty(n, "__esModule", { value: !0 });
-            const i = o(e(476)),
-              r = o(e(126)),
-              s = o(e(161)),
-              l = o(e(143));
+            const i = a(e(476)),
+              r = a(e(126)),
+              s = a(e(161)),
+              l = a(e(143));
             n["default"] = (t, ...n) =>
-              a(void 0, [t, ...n], void 0, function* (t, n = {}) {
+              o(void 0, [t, ...n], void 0, function* (t, n = {}) {
                 const e = Object.assign(
                   {
                     blocks: ["productform"],
@@ -1136,16 +1159,16 @@
                 t.on("load", () => {
                   const n = document.location.href,
                     e = new URL(n),
-                    o = new URLSearchParams(e.search).get("id");
+                    a = new URLSearchParams(e.search).get("id");
                   !(function () {
-                    a(this, void 0, void 0, function* () {
+                    o(this, void 0, void 0, function* () {
                       try {
                         const n = yield fetch(
                             `${
                               document.location.protocol +
                               "//" +
                               document.location.host
-                            }/api/dev/user/landing-page/${o}`,
+                            }/api/dev/user/landing-page/${a}`,
                             {
                               method: "GET",
                               headers: { "Content-Type": "application/json" },
@@ -1188,18 +1211,18 @@
           161: function (t, n) {
             var e =
               (this && this.__awaiter) ||
-              function (t, n, e, a) {
-                return new (e || (e = Promise))(function (o, i) {
+              function (t, n, e, o) {
+                return new (e || (e = Promise))(function (a, i) {
                   function r(t) {
                     try {
-                      l(a.next(t));
+                      l(o.next(t));
                     } catch (t) {
                       i(t);
                     }
                   }
                   function s(t) {
                     try {
-                      l(a["throw"](t));
+                      l(o["throw"](t));
                     } catch (t) {
                       i(t);
                     }
@@ -1207,7 +1230,7 @@
                   function l(t) {
                     var n;
                     t.done
-                      ? o(t.value)
+                      ? a(t.value)
                       : ((n = t.value),
                         n instanceof e
                           ? n
@@ -1215,13 +1238,13 @@
                               t(n);
                             })).then(r, s);
                   }
-                  l((a = a.apply(t, n || [])).next());
+                  l((o = o.apply(t, n || [])).next());
                 });
               };
             Object.defineProperty(n, "__esModule", { value: !0 }),
               (n["default"] = (t, n) => {
-                const { Panels: a } = t;
-                a.addButton("options", {
+                const { Panels: o } = t;
+                o.addButton("options", {
                   id: "publishSite",
                   active: !0,
                   className: "btn-toggle-borders",
@@ -1231,15 +1254,15 @@
                 t.Panels.getButton("options", "publishSite").on("change", () =>
                   e(void 0, void 0, void 0, function* () {
                     const n = t.getHtml(),
-                      a = t.getCss(),
-                      o = t.getProjectData(),
+                      o = t.getCss(),
+                      a = t.getProjectData(),
                       i = n
                         .replace(/<body[^>]*>/, "")
                         .replace(/<\/body\s*>/, ""),
                       r = document.location.href,
                       s = new URL(r),
                       l = new URLSearchParams(s.search).get("id"),
-                      c = { id: l, html: `${i}`, css: `${a}`, projectData: o },
+                      c = { id: l, html: `${i}`, css: `${o}`, projectData: a },
                       d = `${
                         document.location.protocol +
                         "//" +
@@ -1270,20 +1293,20 @@
               });
           },
           143: function (t, n, e) {
-            var a =
+            var o =
               (this && this.__awaiter) ||
-              function (t, n, e, a) {
-                return new (e || (e = Promise))(function (o, i) {
+              function (t, n, e, o) {
+                return new (e || (e = Promise))(function (a, i) {
                   function r(t) {
                     try {
-                      l(a.next(t));
+                      l(o.next(t));
                     } catch (t) {
                       i(t);
                     }
                   }
                   function s(t) {
                     try {
-                      l(a["throw"](t));
+                      l(o["throw"](t));
                     } catch (t) {
                       i(t);
                     }
@@ -1291,7 +1314,7 @@
                   function l(t) {
                     var n;
                     t.done
-                      ? o(t.value)
+                      ? a(t.value)
                       : ((n = t.value),
                         n instanceof e
                           ? n
@@ -1299,55 +1322,61 @@
                               t(n);
                             })).then(r, s);
                   }
-                  l((a = a.apply(t, n || [])).next());
+                  l((o = o.apply(t, n || [])).next());
                 });
               };
             Object.defineProperty(n, "__esModule", { value: !0 });
-            const o = e(126);
+            const a = e(126);
+            let i;
             n["default"] = (t) =>
-              a(void 0, void 0, void 0, function* () {
-                const n = `${
-                  document.location.protocol + "//" + document.location.host
-                }/api/dev/products`;
-                let e = null;
+              o(void 0, void 0, void 0, function* () {
+                i =
+                  "localhost:8080" === document.location.host
+                    ? "https://test2.chepapest.com/api/dev/products"
+                    : `${
+                        document.location.protocol +
+                        "//" +
+                        document.location.host
+                      }/api/dev/products`;
+                let n = null;
                 try {
-                  const a = yield fetch(n);
-                  if (!a.ok) throw new Error("Failed to fetch data");
-                  const i = yield a.json();
-                  (e = i.data),
-                    t.TraitManager.addType(o.typeBasicForm, {
+                  const e = yield fetch(i);
+                  if (!e.ok) throw new Error("Failed to fetch data");
+                  const o = yield e.json();
+                  (n = o.data),
+                    t.TraitManager.addType(a.typeBasicForm, {
                       events: { keyup: "click" },
                       createInput({ trait: t }) {
-                        const n = t.get("options") || [],
-                          a = n.length ? n : e,
-                          o = document.createElement("div");
-                        o.innerHTML = `\n          <select class="products">\n          <option value="" disabled selected>Select a Product</option>\n            ${a
+                        const e = t.get("options") || [],
+                          o = e.length ? e : n,
+                          a = document.createElement("div");
+                        a.innerHTML = `\n          <select class="products">\n          <option value="" disabled selected>Select a Product</option>\n            ${o
                           .map(
                             (t) => `<option value="${t.id}">${t.title}</option>`
                           )
                           .join("")}\n          </select>\n        `;
                         return (
-                          o
+                          a
                             .querySelector(".products")
                             .addEventListener("click", (t) => {
-                              let n = o.querySelector("option:first-child");
+                              let n = a.querySelector("option:first-child");
                               t.target !== n ||
                                 n.dataset.clicked ||
                                 ((n.dataset.clicked = !0),
                                 (n.style.display = "none"),
                                 (n.disabled = !0));
                             }),
-                          o
+                          a
                         );
                       },
-                      onEvent({ elInput: t, component: n }) {
-                        const a = t.querySelector(".products");
-                        let o;
-                        for (let t = 0; t < e.length; t++)
-                          e[t].id == a.value &&
-                            (e[t].value, a.value, (o = e[t]));
-                        n.addAttributes({ selectedData: JSON.stringify(o) }),
-                          (n.attributes.selectedData = JSON.stringify(o));
+                      onEvent({ elInput: t, component: e }) {
+                        const o = t.querySelector(".products");
+                        let a;
+                        for (let t = 0; t < n.length; t++)
+                          n[t].id == o.value &&
+                            (n[t].value, o.value, (a = n[t]));
+                        e.addAttributes({ selectedData: JSON.stringify(a) }),
+                          (e.attributes.selectedData = JSON.stringify(a));
                       },
                     });
                 } catch (t) {
@@ -1357,18 +1386,18 @@
           },
         },
         n = {};
-      function e(a) {
-        var o = n[a];
-        if (void 0 !== o) return o.exports;
-        var i = (n[a] = { exports: {} });
-        return t[a].call(i.exports, i, i.exports, e), i.exports;
+      function e(o) {
+        var a = n[o];
+        if (void 0 !== a) return a.exports;
+        var i = (n[o] = { exports: {} });
+        return t[o].call(i.exports, i, i.exports, e), i.exports;
       }
       return (
         (e.d = (t, n) => {
-          for (var a in n)
-            e.o(n, a) &&
-              !e.o(t, a) &&
-              Object.defineProperty(t, a, { enumerable: !0, get: n[a] });
+          for (var o in n)
+            e.o(n, o) &&
+              !e.o(t, o) &&
+              Object.defineProperty(t, o, { enumerable: !0, get: n[o] });
         }),
         (e.o = (t, n) => Object.prototype.hasOwnProperty.call(t, n)),
         (e.r = (t) => {
