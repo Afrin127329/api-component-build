@@ -1,4 +1,4 @@
-/*! api-component - 1.0.84 */
+/*! api-component - 1.0.92 */
 !(function (t, n) {
   "object" == typeof exports && "object" == typeof module
     ? (module.exports = n())
@@ -20,13 +20,88 @@
           879: (t, n, e) => {
             e.r(n),
               e.d(n, {
-                generateRandomString: () => i,
-                getData: () => r,
-                getSvgHtml: () => a,
-                multipleItemFormScript: () => l,
-                script: () => o,
+                generateRandomString: () => r,
+                getData: () => l,
+                getSvgHtml: () => i,
+                multipleItemFormScript: () => s,
+                shoppingFormScript: () => a,
+                standardFormScript: () => o,
               });
             const o = function () {
+                function t(t) {
+                  const n = document.getElementById("quantity");
+                  if (n) {
+                    let e = parseInt(n.value);
+                    (e += t),
+                      e < 1 && (e = 1),
+                      (n.value = e),
+                      (function (t) {
+                        const n = document.getElementById("productPrice"),
+                          e = document.getElementById("showProduct");
+                        if (n && e) {
+                          const o = parseFloat(n.value) * t;
+                          e.textContent = o.toFixed(2);
+                        }
+                      })(e);
+                  }
+                }
+                const n = document.getElementById("decrease");
+                null !== n && n.addEventListener("click", () => t(-1));
+                const e = document.getElementById("increase");
+                null !== e && e.addEventListener("click", () => t(1)),
+                  document
+                    .querySelectorAll(".contact-form .input-text")
+                    .forEach((t) => {
+                      t.addEventListener("input", () => {
+                        "" !== t.value.trim()
+                          ? t.classList.add("not-empty")
+                          : t.classList.remove("not-empty");
+                      });
+                    }),
+                  document.addEventListener("DOMContentLoaded", function () {
+                    document
+                      .querySelector(".standardForm")
+                      .addEventListener("submit", function (t) {
+                        t.preventDefault();
+                        const n = new FormData(t.target);
+                        let e = [];
+                        const o = n.get("productPrice");
+                        let a = n.get("size");
+                        null === a && (a = "");
+                        const i = n.get("color"),
+                          r = n.get("quantity");
+                        e.push({
+                          size: a,
+                          color: i,
+                          quantity: r,
+                          productPrice: o,
+                        }),
+                          n.delete("size"),
+                          n.delete("color"),
+                          n.delete("quantity"),
+                          0 === e.length && (e = []),
+                          n.append("cart", JSON.stringify(e)),
+                          fetch(
+                            `${
+                              document.location.protocol +
+                              "//" +
+                              document.location.host
+                            }/checkout`,
+                            { method: "POST", body: n }
+                          )
+                            .then((t) => t.text())
+                            .then((t) => {
+                              t ||
+                                console.error("URL not found in the response");
+                            })
+                            .catch((t) => {
+                              console.error("Error:", t);
+                            }),
+                          t.target.reset();
+                      });
+                  });
+              },
+              a = function () {
                 document.addEventListener("DOMContentLoaded", function () {
                   const t = document.getElementById("quantity"),
                     n = document.querySelector(".colorItem"),
@@ -36,29 +111,41 @@
                     i = document.querySelector(".addToCart"),
                     r = document.getElementById("productPrice"),
                     l = document.getElementById("subTotalPrice");
-                  function s(t) {
-                    return n.value && "Choose a Color" !== n.value
-                      ? e.value && "Choose a Size" !== e.value
-                        ? void (function (t) {
-                            if (r && l) {
-                              const n = parseFloat(r.value) * t;
-                              (l.textContent = "৳ " + n.toFixed(2)),
-                                console.log(l);
-                            }
-                          })(quantity)
-                        : ((a.style.display = "block"),
-                          void setTimeout(() => {
-                            a.style.display = "none";
-                          }, 2e3))
-                      : ((o.style.display = "block"),
+                  function s(i) {
+                    if (!n.value || "Choose a Color" === n.value)
+                      return (
+                        (o.style.display = "block"),
                         void setTimeout(() => {
                           o.style.display = "none";
-                        }, 2e3));
+                        }, 2e3)
+                      );
+                    if (!e.value || "Choose a Size" === e.value)
+                      return (
+                        (a.style.display = "block"),
+                        void setTimeout(() => {
+                          a.style.display = "none";
+                        }, 2e3)
+                      );
+                    if (t) {
+                      let n = parseInt(t.value);
+                      (n += i),
+                        n <= 1 && (n = 1),
+                        (t.value = n),
+                        (function (t) {
+                          if (r && l) {
+                            const n = p * t;
+                            (l.textContent = "৳ " + n.toFixed(2)),
+                              console.log(l);
+                          }
+                        })(n);
+                    }
                   }
                   const c = document.getElementById("decrement-btn");
-                  null !== c && c.addEventListener("click", () => s());
+                  null !== c && c.addEventListener("click", () => s(-1));
                   const d = document.getElementById("increment-btn");
-                  function p() {
+                  null !== d && d.addEventListener("click", () => s(1));
+                  const p = parseFloat(r.value);
+                  function m() {
                     const t = document.querySelectorAll(
                       ".shoppingOrderSummary .flex.items-center.justify-between.gap-4"
                     );
@@ -73,7 +160,7 @@
                         ".totalPrice"
                       ).innerText = `৳${n.toFixed(2)}`);
                   }
-                  null !== d && d.addEventListener("click", () => s()),
+                  l && (l.textContent = "৳ " + p.toFixed(2)),
                     i.addEventListener("click", function () {
                       if (!n.value || "Choose a Color" === n.value)
                         return (
@@ -90,49 +177,64 @@
                           }, 2e3)
                         );
                       const i = n.value,
-                        l = e.value,
-                        s = parseInt(t.value),
-                        c = parseFloat(r.value) * s,
-                        d = document.createElement("div");
-                      (d.className = "flex items-center justify-between gap-4"),
-                        (d.innerHTML = `<dl class="flex items-center justify-between gap-3 w-full"><dt class="text-base font-normal text-gray-500">${l} - ${i} x ${s}</dt><dd class="text-base font-medium text-gray-900">৳${c.toFixed(
+                        s = e.value,
+                        c = parseInt(t.value),
+                        d = parseFloat(r.value),
+                        p = d * c,
+                        u = document.createElement("div");
+                      (u.className =
+                        "flex items-center justify-between gap-4 cartItems"),
+                        (u.innerHTML = `<dl class="flex items-center justify-between gap-3 w-full"><dt class="text-base font-normal text-gray-500">${s} - ${i} x ${c}</dt><dd class="text-base font-medium text-gray-900">৳${p.toFixed(
                           2
                         )}</dd></dl><button type="button" class="inline-flex items-center text-sm font-medium text-red-600 hover:underline dark:text-red-500 remove-item"><svg class="me-1.5 h-5 w-5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24"><path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18 17.94 6M18 18 6.06 6" /></svg>Remove</button>`);
                       document
                         .querySelector(".shoppingOrderSummary")
-                        .appendChild(d),
-                        d
+                        .appendChild(u),
+                        u
                           .querySelector(".remove-item")
                           .addEventListener("click", () => {
-                            d.remove(), p();
+                            u.remove(), m();
                           }),
-                        p();
-                    });
+                        m(),
+                        (n.value = "Choose a Color"),
+                        (e.value = "Choose a Size"),
+                        (t.value = 1),
+                        (l.textContent = "৳ " + d.toFixed(2));
+                    }),
+                    document
+                      .getElementById("toggleB")
+                      .addEventListener("change", function () {
+                        const t = this.checked;
+                        console.log(t);
+                      });
                   document
                     .querySelector(".shoppingForm")
                     .addEventListener("submit", function (t) {
                       t.preventDefault();
-                      const n = new FormData(t.target);
-                      let e = [];
-                      for (var o of n.entries())
-                        console.log(o[0] + ": " + o[1]);
-                      const a = n.get("productPrice");
-                      let i = n.get("size");
-                      null === i && (i = "");
-                      const r = n.get("color"),
-                        l = n.get("quantity");
-                      e.push({
-                        size: i,
-                        color: r,
-                        quantity: l,
-                        productPrice: a,
-                      }),
-                        n.delete("size"),
-                        n.delete("color"),
-                        n.delete("quantity"),
-                        0 === e.length && (e = []),
-                        console.log(e),
-                        n.append("cart", JSON.stringify(e)),
+                      const n = new FormData(t.target),
+                        e = n.get("productPrice");
+                      let o = [];
+                      for (var a of n.entries())
+                        console.log(a[0] + ": " + a[1]);
+                      document
+                        .querySelectorAll(
+                          ".shoppingOrderSummary .flex.items-center.justify-between.gap-4"
+                        )
+                        .forEach((t) => {
+                          const n = t.querySelector("dt").innerText,
+                            [a, i] = n.split(" x "),
+                            [r, l] = a.split(" - "),
+                            s = parseInt(i),
+                            c = parseFloat(e);
+                          o.push({
+                            size: r.trim(),
+                            color: l.trim(),
+                            quantity: s,
+                            productPrice: c,
+                          });
+                        }),
+                        0 === o.length && (o = []),
+                        n.append("cart", JSON.stringify(o)),
                         console.log(Object.fromEntries(n)),
                         fetch(
                           `${
@@ -153,13 +255,13 @@
                     });
                 });
               },
-              a = (t) =>
+              i = (t) =>
                 "undefined" == typeof window
                   ? ""
                   : (t.setAttribute("width", "100%"),
                     t.setAttribute("height", "100%"),
                     t.outerHTML),
-              i = () => {
+              r = () => {
                 const t = "abcdefghijklmnopqrstuvwxyz0123456789",
                   n = [7];
                 let e = "";
@@ -168,7 +270,7 @@
                     e += t.charAt(Math.floor(Math.random() * t.length));
                 return e;
               };
-            async function r() {
+            async function l() {
               const t = document.location.href,
                 n = new URL(t),
                 e = new URLSearchParams(n.search).get("id");
@@ -199,7 +301,7 @@
                 });
               }
             }
-            const l = `\n  let orderSumList = document.getElementById("orderSumList");\n\n  // Function to update the order summary list\n  const updateOrderSummary = (index, color, quantity, price) => {\n    let listItem = document.getElementById("optionGroup" + index + "Sum");\n    if (!listItem) {\n      listItem = document.createElement("li");\n      listItem.id = "optionGroup" + index + "Sum";\n      listItem.className = "order-summary";\n      listItem.innerHTML = '<a href="javascript:;" class="btn btn-outline-danger" style="border-radius: 50%"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-x" viewBox="0 0 16 16"><path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708"/></svg></a><span class="summary-text"></span><span class="price"></span>';\n\n      orderSumList.appendChild(listItem);\n      \n      // Add click event to remove item\n      listItem.querySelector("a").addEventListener("click", function () {\n        listItem.remove();\n        calculateTotalPrice();\n      });\n    }\n\n    const summaryText = listItem.querySelector(".summary-text");\n    const priceSpan = listItem.querySelector(".price");\n\n    if (quantity > 0) {\n      summaryText.textContent = color + " x " + quantity;\n      priceSpan.textContent = "৳ " + (quantity * price).toFixed(2);\n    } else {\n      listItem.remove();\n    }\n\n    calculateTotalPrice();\n  };\n\n  // Function to calculate the total price\n  const calculateTotalPrice = () => {\n    const totalPriceElement = document.querySelector("#totalPrice");\n    const prices = orderSumList.querySelectorAll(".price");\n    let total = 0;\n\n    prices.forEach((priceSpan) => {\n      const priceText = priceSpan.textContent.replace("৳ ", "");\n      total += parseFloat(priceText);\n    });\n\n    totalPriceElement.value = "৳ " + total.toFixed(2);\n  };\n\n  document\n    .querySelectorAll(".colorAndQuantity")\n    .forEach(function (optionBox, index) {\n      const colorList = optionBox.querySelector(".colorList");\n      const quantityInput = optionBox.querySelector(".quantity");\n\n      colorList.addEventListener("change", function () {\n        const color = colorList.value;\n        const quantity = parseInt(quantityInput.value, 10);\n        const price = parseFloat(document.querySelector("#productPrice").value);\n        updateOrderSummary(index, color, quantity, price);\n      });\n\n      quantityInput.addEventListener("input", function () {\n        const color = colorList.value;\n        const quantity = parseInt(quantityInput.value, 10);\n        const price = parseFloat(document.querySelector("#productPrice").value);\n        updateOrderSummary(index, color, quantity, price);\n      });\n    });\n\n\n  document.addEventListener('DOMContentLoaded', function() {\n  const form = document.querySelector('.multipleItemForm'); \n\n  form.addEventListener('submit', function(e) {\n    e.preventDefault();\n\n    const formData = new FormData(e.target);\n    let cart = [];\n    const productPrice = formData.get("productPrice");\n\n    const sizeComps = document.querySelectorAll('.colorAndQuantity');\n    sizeComps.forEach(function(sizeComp) {\n      const size = sizeComp.id;\n      const color = document.querySelector("#colorList" + size).value;\n      const quantity = document.querySelector("#quantity" + size).value;\n      if (color === "Select a Color") {\n        cart.push({\n          size: size,\n          color: "",\n          quantity: quantity,\n          productPrice: productPrice,\n        });\n      } else {\n        cart.push({\n          size: size,\n          color: color,\n          quantity: quantity,\n          productPrice: productPrice,\n        });\n      }\n    });\n\n    // If cart is empty, add a blank array\n    if (cart.length === 0) {\n      cart = [];\n    }\n    console.log(cart);\n\n    // Append cart array to FormData object as JSON string\n    formData.append("cart", JSON.stringify(cart));\n    formData.delete("size");\n    formData.delete("color");\n    formData.delete("quantity");\n\n    console.log(Object.fromEntries(formData));\n    e.target.reset();\n  });\n});\n\n`;
+            const s = `\n  let orderSumList = document.getElementById("orderSumList");\n\n  // Function to update the order summary list\n  const updateOrderSummary = (index, color, quantity, price) => {\n    let listItem = document.getElementById("optionGroup" + index + "Sum");\n    if (!listItem) {\n      listItem = document.createElement("li");\n      listItem.id = "optionGroup" + index + "Sum";\n      listItem.className = "order-summary";\n      listItem.innerHTML = '<a href="javascript:;" class="btn btn-outline-danger" style="border-radius: 50%"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-x" viewBox="0 0 16 16"><path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708"/></svg></a><span class="summary-text"></span><span class="price"></span>';\n\n      orderSumList.appendChild(listItem);\n      \n      // Add click event to remove item\n      listItem.querySelector("a").addEventListener("click", function () {\n        listItem.remove();\n        calculateTotalPrice();\n      });\n    }\n\n    const summaryText = listItem.querySelector(".summary-text");\n    const priceSpan = listItem.querySelector(".price");\n\n    if (quantity > 0) {\n      summaryText.textContent = color + " x " + quantity;\n      priceSpan.textContent = "৳ " + (quantity * price).toFixed(2);\n    } else {\n      listItem.remove();\n    }\n\n    calculateTotalPrice();\n  };\n\n  // Function to calculate the total price\n  const calculateTotalPrice = () => {\n    const totalPriceElement = document.querySelector("#totalPrice");\n    const prices = orderSumList.querySelectorAll(".price");\n    let total = 0;\n\n    prices.forEach((priceSpan) => {\n      const priceText = priceSpan.textContent.replace("৳ ", "");\n      total += parseFloat(priceText);\n    });\n\n    totalPriceElement.value = "৳ " + total.toFixed(2);\n  };\n\n  document\n    .querySelectorAll(".colorAndQuantity")\n    .forEach(function (optionBox, index) {\n      const colorList = optionBox.querySelector(".colorList");\n      const quantityInput = optionBox.querySelector(".quantity");\n\n      colorList.addEventListener("change", function () {\n        const color = colorList.value;\n        const quantity = parseInt(quantityInput.value, 10);\n        const price = parseFloat(document.querySelector("#productPrice").value);\n        updateOrderSummary(index, color, quantity, price);\n      });\n\n      quantityInput.addEventListener("input", function () {\n        const color = colorList.value;\n        const quantity = parseInt(quantityInput.value, 10);\n        const price = parseFloat(document.querySelector("#productPrice").value);\n        updateOrderSummary(index, color, quantity, price);\n      });\n    });\n\n\n  document.addEventListener('DOMContentLoaded', function() {\n  const form = document.querySelector('.multipleItemForm'); \n\n  form.addEventListener('submit', function(e) {\n    e.preventDefault();\n\n    const formData = new FormData(e.target);\n    let cart = [];\n    const productPrice = formData.get("productPrice");\n\n    const sizeComps = document.querySelectorAll('.colorAndQuantity');\n    sizeComps.forEach(function(sizeComp) {\n      const size = sizeComp.id;\n      const color = document.querySelector("#colorList" + size).value;\n      const quantity = document.querySelector("#quantity" + size).value;\n      if (color === "Select a Color") {\n        cart.push({\n          size: size,\n          color: "",\n          quantity: quantity,\n          productPrice: productPrice,\n        });\n      } else {\n        cart.push({\n          size: size,\n          color: color,\n          quantity: quantity,\n          productPrice: productPrice,\n        });\n      }\n    });\n\n    // If cart is empty, add a blank array\n    if (cart.length === 0) {\n      cart = [];\n    }\n    console.log(cart);\n\n    // Append cart array to FormData object as JSON string\n    formData.append("cart", JSON.stringify(cart));\n    formData.delete("size");\n    formData.delete("color");\n    formData.delete("quantity");\n\n    console.log(Object.fromEntries(formData));\n    e.target.reset();\n  });\n});\n\n`;
           },
           476: function (t, n, e) {
             var o =
@@ -241,7 +343,7 @@
             let l;
             n["default"] = (t, n) =>
               o(void 0, void 0, void 0, function* () {
-                const { block: e, label: o, id: s, category: c } = n;
+                const { block: e, id: o, category: s } = n;
                 if (e) {
                   l =
                     "localhost:8080" === document.location.host
@@ -252,10 +354,10 @@
                         "/api/dev/products";
                   let n = null;
                   try {
-                    const o = yield fetch(l);
-                    if (!o.ok) throw new Error("Failed to fetch data");
-                    (n = (yield o.json()).data),
-                      t.BlockManager.add(s[0], {
+                    const c = yield fetch(l);
+                    if (!c.ok) throw new Error("Failed to fetch data");
+                    (n = (yield c.json()).data),
+                      t.BlockManager.add(o[0], {
                         label: (0, r.getSvgHtml)(
                           t
                             .$(
@@ -263,7 +365,7 @@
                             )
                             .get(0)
                         ),
-                        category: { id: c[1], label: c[1], open: !1 },
+                        category: { id: s[1], label: s[1], open: !1 },
                         attributes: { class: "block-full-width" },
                         content: {
                           type: a.typeBasicForm,
@@ -272,7 +374,7 @@
                         },
                       }),
                       t.BlockManager.add(
-                        s[1],
+                        o[1],
                         Object.assign(
                           {
                             label: (0, r.getSvgHtml)(
@@ -282,7 +384,7 @@
                                 )
                                 .get(0)
                             ),
-                            category: { id: c[1], label: c[1], open: !1 },
+                            category: { id: s[1], label: s[1], open: !1 },
                             attributes: { class: "block-full-width" },
                             content: {
                               type: a.typeStandardForm,
@@ -294,7 +396,7 @@
                         )
                       ),
                       t.BlockManager.add(
-                        s[2],
+                        o[2],
                         Object.assign(
                           {
                             label: (0, r.getSvgHtml)(
@@ -304,7 +406,7 @@
                                 )
                                 .get(0)
                             ),
-                            category: { id: c[1], label: c[1], open: !1 },
+                            category: { id: s[1], label: s[1], open: !1 },
                             attributes: { class: "block-full-width" },
                             content: {
                               type: a.typemultipleItemForm,
@@ -315,7 +417,7 @@
                           e
                         )
                       ),
-                      t.BlockManager.add(s[3], {
+                      t.BlockManager.add(o[3], {
                         label: (0, r.getSvgHtml)(
                           t
                             .$(
@@ -323,7 +425,7 @@
                             )
                             .get(0)
                         ),
-                        category: { id: c[1], label: c[1], open: !1 },
+                        category: { id: s[1], label: s[1], open: !1 },
                         attributes: { class: "block-full-width" },
                         content: {
                           type: a.typeShoppingForm,
@@ -337,7 +439,7 @@
                 }
                 t.BlockManager.add("link-block", {
                   label: "Link Block",
-                  category: { id: c[0], label: c[0], open: !0 },
+                  category: { id: s[0], label: s[0], open: !0 },
                   attributes: { class: "block-full-width" },
                   media: `<svg viewBox="0 0 24 24">\n      <path fill="currentColor" d="M3.9,12C3.9,10.29 5.29,8.9 7,8.9H11V7H7A5,5 0 0,0 2,12A5,5 0 0,0 7,17H11V15.1H7C5.29,15.1 3.9,13.71 3.9,12M8,13H16V11H8V13M17,7H13V8.9H17C18.71,8.9 20.1,10.29 20.1,12C20.1,13.71 18.71,15.1 17,15.1H13V17H17A5,5 0 0,0 22,12A5,5 0 0,0 17,7Z"></path>\n    </svg>`,
                   content: `<a href="#" class="btn btn-outline-secondary p-2"><span>Link</span></a>`,
@@ -366,7 +468,7 @@
                   }),
                   t.BlockManager.add("image", {
                     label: "Image",
-                    category: { id: c[2], label: c[2], open: !1 },
+                    category: { id: s[2], label: s[2], open: !1 },
                     media: `<svg viewBox="0 0 24 24">\n      <path fill="currentColor" d="M21,3H3C2,3 1,4 1,5V19A2,2 0 0,0 3,21H21C22,21 23,20 23,19V5C23,4 22,3 21,3M5,17L8.5,12.5L11,15.5L14.5,11L19,17H5Z" />\n    </svg>`,
                     activate: !0,
                     content: {
@@ -409,7 +511,7 @@
                   }),
                   t.BlockManager.add("customer-review", {
                     label: "Reviews",
-                    category: { id: c[2], label: c[2], open: !1 },
+                    category: { id: s[2], label: s[2], open: !1 },
                     media: `<svg viewBox="0 0 24 24">\n      <path fill="currentColor" d="M2 20h5V4H2v16Zm-1 0V4a1 1 0 0 1 1-1h5a1 1 0 0 1 1 1v16a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1ZM10 20h12V4H10v16Zm-1 0V4a1 1 0 0 1 1-1h12a1 1 0 0 1 1 1v16a1 1 0 0 1-1 1H10a1 1 0 0 1-1-1Z"></path>\n    </svg>`,
                     attributes: {
                       class: "leftBlock",
@@ -428,55 +530,55 @@
                   }),
                   t.BlockManager.add("divider", {
                     label: "Divider",
-                    category: { id: c[2], label: c[2], open: !1 },
+                    category: { id: s[2], label: s[2], open: !1 },
                     media: `<svg viewBox="0 0 24 24">\n        <path fill="currentColor" d="M21 18H2V20H21V18M19 10V14H4V10H19M20 8H3C2.45 8 2 8.45 2 9V15C2 15.55 2.45 16 3 16H20C20.55 16 21 15.55 21 15V9C21 8.45 20.55 8 20 8M21 4H2V6H21V4Z" />\n    </svg>`,
                     content: i.divider,
                   }),
                   t.BlockManager.add("grid-items", {
                     label: "Grid Items",
-                    category: { id: c[2], label: c[2], open: !1 },
+                    category: { id: s[2], label: s[2], open: !1 },
                     media: `<svg viewBox="0 0 24 24">\n    <path fill="currentColor" d="M3,11H11V3H3M3,21H11V13H3M13,21H21V13H13M13,3V11H21V3"/>\n  </svg>`,
                     content: `\n    <div class="all-grid-items">\n    <div >${i.gridItem3}</div>\n    <div>${i.gridItem3}</div>\n    <div >${i.gridItem3}</div>\n    </div>\n\n    <style>\n      .all-grid-items{\n        display: flex;\n        gap: 1rem;\n        justify-content: center;\n        align-items: center;\n        flex-wrap: wrap;\n      }\n    </style>\n  `,
                   }),
                   t.BlockManager.add("list-items", {
                     label: "List Items",
-                    category: { id: c[2], label: c[2], open: !1 },
+                    category: { id: s[2], label: s[2], open: !1 },
                     media: `<svg viewBox="0 0 24 24">\n    <path fill="currentColor" d="M2 14H8V20H2M16 8H10V10H16M2 10H8V4H2M10 4V6H22V4M10 20H16V18H10M10 16H22V14H10"/>\n  </svg>`,
                     content: i.listItem + i.listItem,
                   }),
                   t.BlockManager.add(a.typeSocial, {
                     label: "socialGroup",
-                    category: { id: c[2], label: c[2], open: !1 },
+                    category: { id: s[2], label: s[2], open: !1 },
                     media: `<svg viewBox="0 0 24 24">\n    <path fill="currentColor" d="M18,16.08C17.24,16.08 16.56,16.38 16.04,16.85L8.91,12.7C8.96,12.47 9,12.24 9,12C9,11.76 8.96,11.53 8.91,11.3L15.96,7.19C16.5,7.69 17.21,8 18,8A3,3 0 0,0 21,5A3,3 0 0,0 18,2A3,3 0 0,0 15,5C15,5.24 15.04,5.47 15.09,5.7L8.04,9.81C7.5,9.31 6.79,9 6,9A3,3 0 0,0 3,12A3,3 0 0,0 6,15C6.79,15 7.5,14.69 8.04,14.19L15.16,18.34C15.11,18.55 15.08,18.77 15.08,19C15.08,20.61 16.39,21.91 18,21.91C19.61,21.91 20.92,20.61 20.92,19A2.92,2.92 0 0,0 18,16.08Z" />\n  </svg>`,
                     content: i.socialGroup,
                   }),
                   t.BlockManager.add(a.typeNavbar, {
                     label: "Navbar",
-                    category: { id: c[2], label: c[2], open: !1 },
+                    category: { id: s[2], label: s[2], open: !1 },
                     media: `<svg viewBox="0 0 24 24">\n    <path fill="currentColor" d="M3,6H21V8H3V6M3,11H21V13H3V11M3,16H21V18H3V16Z" />\n    </svg>`,
                     content: i.nav,
                   }),
                   t.BlockManager.add(a.typeHero, {
                     label: "Hero Section",
-                    category: { id: c[2], label: c[2], open: !1 },
+                    category: { id: s[2], label: s[2], open: !1 },
                     media: `<svg viewBox="0 0 24 24">\n    <path fill="currentColor" d="M20,20H4A2,2 0 0,1 2,18V6A2,2 0 0,1 4,4H20A2,2 0 0,1 22,6V18A2,2 0 0,1 20,20M4,6V18H20V6H4M6,9H18V11H6V9M6,13H16V15H6V13Z" />\n</svg>`,
                     content: i.heroSect,
                   }),
                   t.BlockManager.add(a.typeWrapper, {
                     label: "Wrapper",
-                    category: { id: c[2], label: c[2], open: !1 },
+                    category: { id: s[2], label: s[2], open: !1 },
                     media: `<svg viewBox="0 0 24 24">\n    <path fill="currentColor" d="M18 2H6C4.89 2 4 2.9 4 4V20C4 21.11 4.89 22 6 22H18C19.11 22 20 21.11 20 20V4C20 2.9 19.11 2 18 2M18 20H6V16H18V20M18 8H6V4H18V8Z" />\n</svg>`,
                     content: i.wrapper,
                   }),
                   t.BlockManager.add("video", {
                     label: "Video",
-                    category: { id: c[2], label: c[2], open: !1 },
+                    category: { id: s[2], label: s[2], open: !1 },
                     media: `<svg class="bi bi-play-circle-fill" viewBox="0 0 16 16">\n    <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0M6.79 5.093A.5.5 0 0 0 6 5.5v5a.5.5 0 0 0 .79.407l3.5-2.5a.5.5 0 0 0 0-.814z"/>\n  </svg>`,
                     content: { type: "video", src: "" },
                   }),
                   t.BlockManager.add("carousel", {
                     label: "Slider",
-                    category: { id: c[2], label: c[2], open: !1 },
+                    category: { id: s[2], label: s[2], open: !1 },
                     media: `<svg class="bi bi-sliders" viewBox="0 0 16 16">\n    <path fill-rule="evenodd" d="M11.5 2a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3M9.05 3a2.5 2.5 0 0 1 4.9 0H16v1h-2.05a2.5 2.5 0 0 1-4.9 0H0V3zM4.5 7a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3M2.05 8a2.5 2.5 0 0 1 4.9 0H16v1H6.95a2.5 2.5 0 0 1-4.9 0H0V8zm9.45 4a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3m-2.45 1a2.5 2.5 0 0 1 4.9 0H16v1h-2.05a2.5 2.5 0 0 1-4.9 0H0v-1z"/>\n  </svg>`,
                     content: i.carousel,
                   }),
@@ -737,6 +839,7 @@
                         droppable: ":not(form)",
                         draggable: ":not(form)",
                         name: r[1],
+                        script: o.standardFormScript,
                         attributes: {
                           class: `${s} ${s}-container standardForm`,
                           method: "post",
@@ -901,7 +1004,7 @@
                               t.forEach((t, n) => {
                                 const e = (0, o.generateRandomString)();
                                 r.add(
-                                  `<div class="option-box-header colorAndQuantity" key="${n}" id="${e}">\n                <input type="hidden" id="size" name="size" value="${t}" />\n                      <h3>Size ${t}</h3>\n                      <p>আপনার পছন্দের রঙ এবং পরিমাণ নির্বাচন করুন</p>\n                    <div class="col-md-12 col-sm-6">\n                      <select id="colorList-${e}" class="form-control colorList" name="color" required>\n                        <option selected="true" disabled="disabled">Select a Color</option>\n                      </select>\n                    </div>\n                    <div class="col-md-12 col-sm-6" style="margin-top: 1rem;">\n                      <div class="row">\n                        <div class="col" style="align-items: center; justify-content: start; display: flex;">\n                        <label class="radio-label" for="quantity">পরিমাণ নির্বাচন করুন</label>\n                        </div>\n                        <div class="col" style="align-items: center; justify-content: start; display: flex;">\n                          <input id="quantity-${e}" class="quantity" name="quantity" class="form-control" type="number" value="0" required min="0"/>\n                        </div>\n                      </div>\n                    </div>\n                    </div>\n                    `
+                                  `<div class="option-box-header colorAndQuantity" key="${n}" id="${e}">\n                <input type="hidden" id="size" name="size" value="${t}" />\n                      <h3>Size ${t}</h3>\n                      <p>আপনার পছন্দের রঙ এবং পরিমাণ নির্বাচন করুন</p>\n                    <div class="col-md-12 col-sm-6">\n                      <select id="colorList-${e}" class="form-control colorList" name="color" required>\n                        <option selected="true" disabled="disabled">Select a Color</option>\n                      </select>\n                    </div>\n                    <div class="col-md-12 col-sm-6" style="margin-top: 1rem;">\n                      <div class="row">\n                        <div class="col" style="align-items: center; justify-content: start; display: flex;">\n                        <label class="radio-label" for="quantity">পরিমাণ নির্বাচন করুন</label>\n                        </div>\n                        <div class="col" style="align-items: center; justify-content: start; display: flex;">\n                          <input id="quantity-${e}" class="quantity form-control" name="quantity" type="number" value="0" required min="0"/>\n                        </div>\n                      </div>\n                    </div>\n                    </div>\n                    `
                                 );
                               });
                             a.find(".colorList").forEach((t) => {
@@ -948,7 +1051,6 @@
                     },
                     model: {
                       defaults: {
-                        script: o.script,
                         tagName: "form",
                         droppable: ":not(form)",
                         draggable: ":not(form)",
@@ -962,6 +1064,7 @@
                             document.location.host
                           }/checkout`,
                         },
+                        script: o.shoppingFormScript,
                         traits: [{ type: n.typeBasicForm, name: "product" }],
                         components: { type: c, data: l },
                       },
@@ -1104,14 +1207,14 @@
               (n.collapse = `\n<p class="d-inline-flex gap-1">\n<a class="btn btn-primary" data-bs-toggle="collapse" href="#multiCollapseExample1" role="button" aria-expanded="false" aria-controls="multiCollapseExample1"><span>Toggle element</span></a>\n</p>\n<div class="row rowClass">\n<div class="col">\n<div class="collapse multi-collapse" id="multiCollapseExample1">\n  <div class="card card-body">\n  <p class="fs-6"> Some placeholder content for the first collapse component of this multi-collapse example. This panel is hidden by default but revealed when the user activates the relevant trigger.</p>\n  </div>\n</div>\n</div>\n</div>\n`),
               (n.tabs = `\n<ul class="nav nav-tabs myTab" id="myTab" role="tablist">\n<li class="nav-item" role="presentation">\n  <button class="nav-link active" id="home-tab" data-bs-toggle="tab" data-bs-target="#home-tab-pane" type="button" role="tab" aria-controls="home-tab-pane" aria-selected="true"><p class="fs-6" style="margin-bottom: 0rem;">Home</p></button>\n</li>\n<li class="nav-item" role="presentation">\n  <button class="nav-link" id="profile-tab" data-bs-toggle="tab" data-bs-target="#profile-tab-pane" type="button" role="tab" aria-controls="profile-tab-pane" aria-selected="false"><p class="fs-6" style="margin-bottom: 0rem;">Profile</p></button>\n</li>\n<li class="nav-item" role="presentation">\n  <button class="nav-link" id="contact-tab" data-bs-toggle="tab" data-bs-target="#contact-tab-pane" type="button" role="tab" aria-controls="contact-tab-pane" aria-selected="false"><p class="fs-6" style="margin-bottom: 0rem;">Contact</p></button>\n</li>\n</ul>\n<div class="tab-content border border-secondary myTab" id="myTabContent">\n<div class="tab-pane fade show active" id="home-tab-pane" role="tabpanel" aria-labelledby="home-tab" tabindex="0">\n<p class="fs-6" style="margin-bottom: 0rem;">\nLorem ipsum dolor sit amet consectetur adipisicing elit. Provident reiciendis ullam expedita sed ipsum tenetur laudantium architecto cumque esse accusamus praesentium quas eos quasi repellendus, a rem. Hic, soluta iusto?\n</p>\n</div>\n<div class="tab-pane fade" id="profile-tab-pane" role="tabpanel" aria-labelledby="profile-tab" tabindex="0">\n<p class="fs-6" style="margin-bottom: 0rem;">\nLorem ipsum dolor sit, amet consectetur adipisicing elit. Ratione, velit quasi. Reprehenderit, quidem quos. Quibusdam, in? Veniam quas obcaecati eligendi maxime perferendis, atque ducimus cumque, praesentium voluptas delectus laboriosam quis necessitatibus ratione perspiciatis voluptatibus iusto.\n</p>\n</div>\n<div class="tab-pane fade" id="contact-tab-pane" role="tabpanel" aria-labelledby="contact-tab" tabindex="0">\n<p class="fs-6" style="margin-bottom: 0rem;">\nLorem, ipsum dolor sit amet consectetur adipisicing elit. Natus, facilis. Rerum, ad? Facilis ipsa illum quaerat corrupti earum? Sequi, distinctio!\n</p>\n</div>\n</div>\n\n<style>\n.myTab {\nwidth: 25rem;\n}\n@media only screen and (max-width: 600px) {\n.myTab{\n  width: 100% !important;\n}\n}\n</style>\n`),
               (n.footer = `\n<footer class="w-100 py-4 flex-shrink-0">\n<div class="container py-4">\n    <div class="row">\n        <div class="col-lg-4 col-md-6">\n            <h5 class="h1 text-white">FB.</h5>\n            <p class="small text-white">Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt.</p>\n            <p class="small mb-0 text-whte">&copy; Copyrights. All rights reserved. <a class="text-primary" href="#">Bootstrapious.com</a></p>\n        </div>\n        <div class="col-lg-2 col-md-6">\n            <h5 class="text-white mb-3">Quick links</h5>\n            <ul class="list-unstyled text-muted">\n                <li><a href="#"><span>Home</span></a></li>\n                <li><a href="#"><span>About</span></a></li>\n                <li><a href="#"><span>Get started</span></a></li>\n                <li><a href="#"><span>FAQ</span></a></li>\n            </ul>\n        </div>\n        <div class="col-lg-2 col-md-6">\n            <h5 class="text-white mb-3">Quick links</h5>\n            <ul class="list-unstyled text-muted">\n            <li><a href="#"><span>Home</span></a></li>\n                <li><a href="#"><span>About</span></a></li>\n                <li><a href="#"><span>Get started</span></a></li>\n                <li><a href="#"><span>FAQ</span></a></li>\n            </ul>\n        </div>\n        <div class="col-lg-4 col-md-6">\n            <h5 class="text-white mb-3">Newsletter</h5>\n            <p class="small  text-white">Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt. Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt. Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt.</p>\n        </div>\n    </div>\n</div>\n</footer>\n\n<style>\n\nfooter {\nbackground: #212529;\n}\na {\ncolor: white;\ntext-decoration: none;\ntransition: all 0.3s;\n}\n\na:hover, a:focus {\ntext-decoration: none;\n}\n</style>\n`),
-              (n.standardForm = `\n          <section class="get-in-touch">\n   <h1 class="title">Order Form</h1>\n   <section class="contact-form row">\n      <div class="form-field col-lg-6">\n         <input id="name" name="name" class="input-text js-input" type="text" required>\n         <label class="label" for="name">Name</label>\n      </div>\n       <div class="form-field col-lg-6 ">\n         <input id="phone" name="phone" class="input-text js-input" type="text" required>\n         <label class="label" for="phone">Contact Number</label>\n      </div>\n      <div class="form-field col-lg-12">\n         <input id="address" name="address" class="input-text js-input" type="text" required>\n         <label class="label" for="address">Address</label>\n      </div>\n\n      <div class="form-field col-lg-6" id="size"> </div>\n\n      <div class="form-field col-lg-6">\n          <div style="color: rgb(85, 67, 202); font-size: 18px; font-weight: 400; margin-bottom: 1rem">Select Quantity</div>\n            <div class="quantity-selector">\n              <button type="button" class="btn input-text btn-outline-secondary quantity-input js-input input-text-sm " id="decrease" onclick="updateQuantity()">-</button>\n              <input type="text" class="form-control quantity-input-sm" id="quantity" value="1" readonly name="quantity">\n              <button type="button" class="btn input-text btn-outline-secondary quantity-input js-input input-text-sm" id="increase" onclick="updateQuantity()">+</button>\n            </div>\n      </div>\n\n      <div class="form-field col-lg-6" id="colorDiv"> </div>\n\n      <div class="form-field col-lg-6" id="shipping">\n       <div style="color: rgb(85, 67, 202); font-size: 18px; font-weight: 400;">Shipping</div>\n       <p style="font-size: 20px; font-weight: 600; margin-right: 5px;" id="cashOnDelivery">Cash on Delivery</p>\n         <input type="radio" id="insideDhaka" value="60" name="insideDhaka" required>\n        <label class="radio-label" for="insideDhaka">Inside Dhaka: 60 BDT</label><br>\n        <input type="radio" id="outsideDhaka" value="120" name="insideDhaka" required>\n        <label class="radio-label" for="outsideDhaka">Outside Dhaka: 120 BDT</label><br>\n      </div>\n\n        <div class="form-field col-lg-12" style="display: none;">\n         <input type="hidden" id="server" name="landingpage" value="true">\n         <input type="hidden" id="token" name="_token" value="{{ csrf_token() }}">\n         <input type="hidden" id="productId" name="productId" class="productId" value="">\n         <input type="hidden" id="formCheck" name="formCheck" value="Standard Form">\n        </div>\n\n      <div class="form-field col-lg-6" id="priceDiv">\n        <div style="color: rgb(85, 67, 202); font-size: 18px; font-weight: 400; margin-bottom: 1rem">Total Price</div>\n        <span style="font-size: 20px; font-weight: 600; margin-right: 5px;" class="showProduct"></span>\n        <input type="hidden" id="productPrice" name="productPrice" class="productPrice" value="0">\n      </div>\n\n\n      <div class="form-field col-lg-12">\n         <input class="submit-btn" type="submit" value="Submit">\n      </div>\n   </section>\n</section>\n`),
-              (n.multipleItemForm = `\n          <section class="multiple-item-form">\n            \t\t<div class="sub-header">\n                  <div class="container">\n                    <h1>Order Form</h1>\n                  </div>\n                </div>\n            \t\t\t<div class="order">\n\t\t\t\t<div class="container">\n\t\t\t\t\t\t<div class="row">\n\t\t\t\t\t\t\t<div class="col-lg-8" id="mainContent">\n\n\t\t\t\t\t\t\t\t<div id="sizeGroup" class="row option-box sizeColorAndQuantity"> </div>\n\n\t\t\t\t\t\t\t\t<div id="extraOptionGroup1" class="row option-box">\n\t\t\t\t\t\t\t\t\t<div class="option-box-header">\n\t\t\t\t\t\t\t\t\t\t<h3>ক্যাশ অন ডেলিভারি (হোম ডেলিভারি)</h3>\n\t\t\t\t\t\t\t\t\t\t<p>আপনি যদি ক্যাশ অন ডেলিভারি চান তাহলে নিচের অপশনটি চেক করুন</p>\n\t\t\t\t\t\t\t\t\t</div>\n\n\t\t\t\t\t\t\t\t\t<div class="col-md-12 col-sm-12 checkbox">\n                  <div class="checkbox-wrapper-7">\n                      <input class="tgl tgl-ios" id="cb2-7" type="checkbox"/>\n                      <label class="tgl-btn" for="cb2-7">\n                    </div>\n\t\t\t\t\t\t\t\t\t\t<label class="radio-label" for="cashOnDelivery">ক্যাশ অন ডেলিভারি</label>\n\t\t\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t\t\t</div>\n\n                <div class="row option-box" id="shipping">\n                \t\t<div class="option-box-header">\n\t\t\t\t\t\t\t\t\t\t<h3>শিপিং ফি</h3>\n\t\t\t\t\t\t\t\t\t</div>\n                  <div class="form-group">\n                    <input type="radio" id="insideDhaka" value="60" name="insideDhaka" required>\n                    <label class="radio-label" for="insideDhaka">Inside Dhaka: 60 BDT</label><br>\n\t\t\t\t\t\t\t\t\t</div>\n                  <div class="form-group">\n                    <input type="radio" id="outsideDhaka" value="120" name="insideDhaka" required>\n                    <label class="radio-label" for="outsideDhaka">Outside Dhaka: 120 BDT</label><br>\n\t\t\t\t\t\t\t\t\t</div>\n                </div>\n\n                \n\t\t\t\t\t\t\t\t<div id="personalDetails">\n\t\t\t\t\t\t\t\t\t<div class="row">\n\t\t\t\t\t\t\t\t\t\t<div class="order-box-header">\n\t\t\t\t\t\t\t\t\t\t\t<h3>অর্ডার করতে নিচের ফর্মটি সঠিক তথ্য দিয়ে পূরণ করুন</h3>\n\t\t\t\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t\t\t\t\t<div class="col-md-6 col-sm-6">\n\t\t\t\t\t\t\t\t\t\t\t<div class="form-group">\n\t\t\t\t\t\t\t\t\t\t\t\t<label>Name</label>\n\t\t\t\t\t\t\t\t\t\t\t\t<input id="username" class="form-control" name="name" placeholder="Enter Full Name" type="text" required />\n\t\t\t\t\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t\t\t\t\t</div>\n                    \t<div class="col-md-6 col-sm-6">\n\t\t\t\t\t\t\t\t\t\t\t<div class="form-group">\n\t\t\t\t\t\t\t\t\t\t\t\t<label>Phone</label>\n\t\t\t\t\t\t\t\t\t\t\t\t<input id="phone" class="form-control" name="phone" placeholder="Enter Phone e.g.: 01711111111" type="text" required/>\n\t\t\t\t\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t\t\t\t</div>\n\n\t\t\t\t\t\t\t\t\t<div class="row">\n\t\t\t\t\t\t\t\t\t\t<div class="col-md-6 col-md-12">\n\t\t\t\t\t\t\t\t\t\t\t<div class="form-group">\n\t\t\t\t\t\t\t\t\t\t\t\t<label>Address</label>\n\t\t\t\t\t\t\t\t\t\t\t\t<input id="address" class="form-control" name="address" placeholder="Enter Address" type="text" required />\n\t\t\t\t\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t\t\t\t</div>\n\n\t\t\t\t\t\t\t\t\t<div class="row">\n\t\t\t\t\t\t\t\t\t\t<div class="col-md-12">\n\t\t\t\t\t\t\t\t\t\t\t<div class="form-group">\n\t\t\t\t\t\t\t\t\t\t\t\t<label>Message</label>\n\t\t\t\t\t\t\t\t\t\t\t\t<textarea id="inputMessage" class="form-control" name="message" placeholder="Enter Message"></textarea>\n\t\t\t\t\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t\t\t\t</div>\n\n                     <div class="form-field col-lg-12" style="display: none;">\n                      <input type="hidden" id="server" name="landingpage" value="true">\n                      <input type="hidden" id="token" name="_token" value="{{ csrf_token() }}">\n                      <input type="hidden" id="productId" name="productId" class="productId" value="">\n                      <input type="hidden" id="formCheck" name="formCheck" value="Multiple Item Form">\n                      <input type="hidden" id="productPrice" name="productPrice" class="productPrice" value="0">\n                    </div>\n\n\n\t\t\t\t\t\t\t\t\t<div class="row">\n\t\t\t\t\t\t\t\t\t\t<div class="col-md-12">\n                      <div class="order-box-header">\n                        <h3>আরও তথ্যের জন্য, এই নম্বরে যোগাযোগ করুন 01711111111</h3>\n                      </div>  \n\t\t\t\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t\t\t\t</div>\n\n\t\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t\t</div>\n\n\t\t\t\t\t\t\t<div class="col-lg-4" id="sidebar">\n\t\t\t\t\t\t\t\t<div id="orderContainer" class="theiaStickySidebar">\n\t\t\t\t\t\t\t\t\t<div class="row">\n\t\t\t\t\t\t\t\t\t\t<div class="col-md-12">\n\t\t\t\t\t\t\t\t\t\t\t<h3>Order Summary</h3>\n\t\t\t\t\t\t\t\t\t\t\t<ul id="orderSumList"></ul>\n\n\t\t\t\t\t\t\t\t\t\t\t<div class="row total-container">\n\t\t\t\t\t\t\t\t\t\t\t\t<div class="col-6 p-0">\n                        <label>Total Price</label>\n\t\t\t\t\t\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t\t\t\t\t\t\t<div class="col-6 p-0">\n\t\t\t\t\t\t\t\t\t\t\t\t\t<input type="text" id="totalPrice" class="summaryInput" name="total" value="৳ 0"\n\t\t\t\t\t\t\t\t\t\t\t\t\t\tdisabled />\n\t\t\t\t\t\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t\t\t\t<div class="row">\n\t\t\t\t\t\t\t\t\t\t<div class="col-lg-12">\n\t\t\t\t\t\t\t\t\t\t\t<button type="submit" name="submit" class="btn-form-func">\n\t\t\t\t\t\t\t\t\t\t\t\t<span class="btn-form-func-content">SUBMIT</span>\n\t\t\t\t\t\t\t\t\t\t\t</button>\n\t\t\t\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t\t\t\t</div>\n\t\t\t\t\n\t\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\n\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t</div>\n\t\t\t\t</div>\n\t\t\t</div>\n          </section>\n          \n          <script id="multipleFormScript">\n            let orderSumList = document.getElementById("orderSumList");\n\n  // Function to update the order summary list\n  const updateOrderSummary = (index, color, quantity, price) => {\n    let listItem = document.getElementById("optionGroup" + index + "Sum");\n    if (!listItem) {\n      listItem = document.createElement("li");\n      listItem.id = "optionGroup" + index + "Sum";\n      listItem.className = "order-summary";\n      listItem.innerHTML = '<a href="javascript:;" class="btn btn-outline-danger" style="border-radius: 50%"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-x" viewBox="0 0 16 16"><path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708"/></svg></a><span class="summary-text"></span><span class="price"></span>';\n\n      orderSumList.appendChild(listItem);\n      \n      // Add click event to remove item\n      listItem.querySelector("a").addEventListener("click", function () {\n        listItem.remove();\n        calculateTotalPrice();\n      });\n    }\n\n    const summaryText = listItem.querySelector(".summary-text");\n    const priceSpan = listItem.querySelector(".price");\n\n    if (quantity > 0) {\n      summaryText.textContent = color + " x " + quantity;\n      priceSpan.textContent = "৳ " + (quantity * price).toFixed(2);\n    } else {\n      listItem.remove();\n    }\n\n    calculateTotalPrice();\n  };\n\n  // Function to calculate the total price\n  const calculateTotalPrice = () => {\n    const totalPriceElement = document.querySelector("#totalPrice");\n    const prices = orderSumList.querySelectorAll(".price");\n    let total = 0;\n\n    prices.forEach((priceSpan) => {\n      const priceText = priceSpan.textContent.replace("৳ ", "");\n      total += parseFloat(priceText);\n    });\n\n    totalPriceElement.value = "৳ " + total.toFixed(2);\n  };\n\n  document\n    .querySelectorAll(".colorAndQuantity")\n    .forEach(function (optionBox, index) {\n      const colorList = optionBox.querySelector(".colorList");\n      const quantityInput = optionBox.querySelector(".quantity");\n\n      colorList.addEventListener("change", function () {\n        const color = colorList.value;\n        const quantity = parseInt(quantityInput.value, 10);\n        const price = parseFloat(document.querySelector("#productPrice").value);\n        updateOrderSummary(index, color, quantity, price);\n      });\n\n      quantityInput.addEventListener("input", function () {\n        const color = colorList.value;\n        const quantity = parseInt(quantityInput.value, 10);\n        const price = parseFloat(document.querySelector("#productPrice").value);\n        updateOrderSummary(index, color, quantity, price);\n      });\n    });\n\n  document.addEventListener('DOMContentLoaded', function() {\n  const form = document.querySelector('.multipleItemForm'); \n\n  form.addEventListener('submit', function(e) {\n    e.preventDefault();\n    const formData = new FormData(e.target);\n    let cart = [];\n    const productPrice = formData.get("productPrice");\n\n    const sizeComps = document.querySelectorAll('.colorAndQuantity');\n    sizeComps.forEach(function(sizeComp) {\n      const size = sizeComp.id;\n       const color = document.querySelector("#colorList-" + size).value;\n      const quantity = document.querySelector("#quantity-" + size).value;\n      if (color === "Select a Color") {\n        cart.push({\n          size: size,\n          color: "",\n          quantity: quantity,\n          productPrice: productPrice,\n        });\n      } else {\n        cart.push({\n          size: size,\n          color: color,\n          quantity: quantity,\n          productPrice: productPrice,\n        });\n      }\n    });\n\n    // If cart is empty, add a blank array\n    if (cart.length === 0) {\n      cart = [];\n    }\n    // console.log(cart);\n\n    // Append cart array to FormData object as JSON string\n    formData.append("cart", JSON.stringify(cart));\n    formData.delete("size");\n    formData.delete("color");\n    formData.delete("quantity");\n\n    // console.log(Object.fromEntries(formData));\n       fetch('${
+              (n.standardForm = `\n          <section class="get-in-touch">\n   <h1 class="title">Order Form</h1>\n   <section class="contact-form row">\n      <div class="form-field col-lg-6">\n         <input id="name" name="name" class="input-text js-input" type="text" required>\n         <label class="label" for="name">Name</label>\n      </div>\n       <div class="form-field col-lg-6 ">\n         <input id="phone" name="phone" class="input-text js-input" type="text" required>\n         <label class="label" for="phone">Contact Number</label>\n      </div>\n      <div class="form-field col-lg-12">\n         <input id="address" name="address" class="input-text js-input" type="text" required>\n         <label class="label" for="address">Address</label>\n      </div>\n\n      <div class="form-field col-lg-6" id="size"> </div>\n\n      <div class="form-field col-lg-6">\n          <div style="color: rgb(85, 67, 202); font-size: 18px; font-weight: 400; margin-bottom: 1rem">Select Quantity</div>\n            <div class="quantity-selector">\n              <button type="button" class="btn input-text btn-outline-secondary quantity-input js-input input-text-sm " id="decrease" onclick="updateQuantity()">-</button>\n              <input type="text" class="form-control quantity-input-sm" id="quantity" value="1" readonly name="quantity">\n              <button type="button" class="btn input-text btn-outline-secondary quantity-input js-input input-text-sm" id="increase" onclick="updateQuantity()">+</button>\n            </div>\n      </div>\n\n      <div class="form-field col-lg-6" id="colorDiv"> </div>\n\n      <div class="form-field col-lg-6" id="shipping">\n       <div style="color: rgb(85, 67, 202); font-size: 18px; font-weight: 400;">Shipping</div>\n       <p style="font-size: 20px; font-weight: 600; margin-right: 5px;" id="cashOnDelivery">Cash on Delivery</p>\n         <input type="radio" id="insideDhaka" value="60" name="shippingFee" required>\n        <label class="radio-label" for="insideDhaka">Inside Dhaka: 60 BDT</label><br>\n        <input type="radio" id="outsideDhaka" value="120" name="shippingFee" required>\n        <label class="radio-label" for="outsideDhaka">Outside Dhaka: 120 BDT</label><br>\n      </div>\n\n        <div class="form-field col-lg-12" style="display: none;">\n         <input type="hidden" id="server" name="landingpage" value="true">\n         <input type="hidden" id="token" name="_token" value="{{ csrf_token() }}">\n         <input type="hidden" id="productId" name="productId" class="productId" value="">\n         <input type="hidden" id="formCheck" name="formCheck" value="Standard Form">\n        </div>\n\n      <div class="form-field col-lg-6" id="priceDiv">\n        <div style="color: rgb(85, 67, 202); font-size: 18px; font-weight: 400; margin-bottom: 1rem">Total Price</div>\n        <span style="font-size: 20px; font-weight: 600; margin-right: 5px;" class="showProduct"></span>\n        <input type="hidden" id="productPrice" name="productPrice" class="productPrice" value="0">\n      </div>\n\n\n      <div class="form-field col-lg-12">\n         <input class="submit-btn" type="submit" value="Submit">\n      </div>\n   </section>\n</section>\n`),
+              (n.multipleItemForm = `\n          <section class="multiple-item-form">\n            \t\t<div class="sub-header">\n                  <div class="container">\n                    <h1>Order Form</h1>\n                  </div>\n                </div>\n            \t\t\t<div class="order">\n\t\t\t\t<div class="container">\n\t\t\t\t\t\t<div class="row">\n\t\t\t\t\t\t\t<div class="col-lg-8" id="mainContent">\n\n\t\t\t\t\t\t\t\t<div id="sizeGroup" class="row option-box sizeColorAndQuantity"> </div>\n\n\t\t\t\t\t\t\t\t<div id="extraOptionGroup1" class="row option-box">\n\t\t\t\t\t\t\t\t\t<div class="option-box-header">\n\t\t\t\t\t\t\t\t\t\t<h3>ক্যাশ অন ডেলিভারি (হোম ডেলিভারি)</h3>\n\t\t\t\t\t\t\t\t\t\t<p>আপনি যদি ক্যাশ অন ডেলিভারি চান তাহলে নিচের অপশনটি চেক করুন</p>\n\t\t\t\t\t\t\t\t\t</div>\n\n\t\t\t\t\t\t\t\t\t<div class="col-md-12 col-sm-12 checkbox">\n                  <div class="checkbox-wrapper-7">\n                      <input class="tgl tgl-ios" id="cb2-7" name="cashOnDelivery" type="checkbox"/>\n                      <label class="tgl-btn" for="cb2-7">\n                    </div>\n\t\t\t\t\t\t\t\t\t\t<label class="radio-label" for="cashOnDelivery">ক্যাশ অন ডেলিভারি</label>\n\t\t\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t\t\t</div>\n\n                <div class="row option-box" id="shipping">\n                \t\t<div class="option-box-header">\n\t\t\t\t\t\t\t\t\t\t<h3>শিপিং ফি</h3>\n\t\t\t\t\t\t\t\t\t</div>\n                  <div class="form-group">\n                    <input type="radio" id="insideDhaka" value="60" name="shippingFee" required>\n                    <label class="radio-label" for="insideDhaka">Inside Dhaka: 60 BDT</label><br>\n\t\t\t\t\t\t\t\t\t</div>\n                  <div class="form-group">\n                    <input type="radio" id="outsideDhaka" value="120" name="shippingFee" required>\n                    <label class="radio-label" for="outsideDhaka">Outside Dhaka: 120 BDT</label><br>\n\t\t\t\t\t\t\t\t\t</div>\n                </div>\n\n                \n\t\t\t\t\t\t\t\t<div id="personalDetails">\n\t\t\t\t\t\t\t\t\t<div class="row">\n\t\t\t\t\t\t\t\t\t\t<div class="order-box-header">\n\t\t\t\t\t\t\t\t\t\t\t<h3>অর্ডার করতে নিচের ফর্মটি সঠিক তথ্য দিয়ে পূরণ করুন</h3>\n\t\t\t\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t\t\t\t\t<div class="col-md-6 col-sm-6">\n\t\t\t\t\t\t\t\t\t\t\t<div class="form-group">\n\t\t\t\t\t\t\t\t\t\t\t\t<label>Name</label>\n\t\t\t\t\t\t\t\t\t\t\t\t<input id="username" class="form-control" name="name" placeholder="Enter Full Name" type="text" required />\n\t\t\t\t\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t\t\t\t\t</div>\n                    \t<div class="col-md-6 col-sm-6">\n\t\t\t\t\t\t\t\t\t\t\t<div class="form-group">\n\t\t\t\t\t\t\t\t\t\t\t\t<label>Phone</label>\n\t\t\t\t\t\t\t\t\t\t\t\t<input id="phone" class="form-control" name="phone" placeholder="Enter Phone e.g.: 01711111111" type="text" required/>\n\t\t\t\t\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t\t\t\t</div>\n\n\t\t\t\t\t\t\t\t\t<div class="row">\n\t\t\t\t\t\t\t\t\t\t<div class="col-md-6 col-md-12">\n\t\t\t\t\t\t\t\t\t\t\t<div class="form-group">\n\t\t\t\t\t\t\t\t\t\t\t\t<label>Address</label>\n\t\t\t\t\t\t\t\t\t\t\t\t<input id="address" class="form-control" name="address" placeholder="Enter Address" type="text" required />\n\t\t\t\t\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t\t\t\t</div>\n\n\t\t\t\t\t\t\t\t\t<div class="row">\n\t\t\t\t\t\t\t\t\t\t<div class="col-md-12">\n\t\t\t\t\t\t\t\t\t\t\t<div class="form-group">\n\t\t\t\t\t\t\t\t\t\t\t\t<label>Message</label>\n\t\t\t\t\t\t\t\t\t\t\t\t<textarea id="inputMessage" class="form-control" name="message" placeholder="Enter Message"></textarea>\n\t\t\t\t\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t\t\t\t</div>\n\n                     <div class="form-field col-lg-12" style="display: none;">\n                      <input type="hidden" id="server" name="landingpage" value="true">\n                      <input type="hidden" id="token" name="_token" value="{{ csrf_token() }}">\n                      <input type="hidden" id="productId" name="productId" class="productId" value="">\n                      <input type="hidden" id="formCheck" name="formCheck" value="Multiple Item Form">\n                      <input type="hidden" id="productPrice" name="productPrice" class="productPrice" value="0">\n                    </div>\n\n\n\t\t\t\t\t\t\t\t\t<div class="row">\n\t\t\t\t\t\t\t\t\t\t<div class="col-md-12">\n                      <div class="order-box-header">\n                        <h3>আরও তথ্যের জন্য, এই নম্বরে যোগাযোগ করুন 01711111111</h3>\n                      </div>  \n\t\t\t\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t\t\t\t</div>\n\n\t\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t\t</div>\n\n\t\t\t\t\t\t\t<div class="col-lg-4" id="sidebar">\n\t\t\t\t\t\t\t\t<div id="orderContainer" class="theiaStickySidebar">\n\t\t\t\t\t\t\t\t\t<div class="row">\n\t\t\t\t\t\t\t\t\t\t<div class="col-md-12">\n\t\t\t\t\t\t\t\t\t\t\t<h3>Order Summary</h3>\n\t\t\t\t\t\t\t\t\t\t\t<ul id="orderSumList"></ul>\n\n\t\t\t\t\t\t\t\t\t\t\t<div class="row total-container">\n\t\t\t\t\t\t\t\t\t\t\t\t<div class="col-6 p-0">\n                        <label>Total Price</label>\n\t\t\t\t\t\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t\t\t\t\t\t\t<div class="col-6 p-0">\n\t\t\t\t\t\t\t\t\t\t\t\t\t<input type="text" id="totalPrice" class="summaryInput" name="total" value="৳ 0"\n\t\t\t\t\t\t\t\t\t\t\t\t\t\tdisabled />\n\t\t\t\t\t\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t\t\t\t<div class="row">\n\t\t\t\t\t\t\t\t\t\t<div class="col-lg-12">\n\t\t\t\t\t\t\t\t\t\t\t<button type="submit" name="submit" class="btn-form-func">\n\t\t\t\t\t\t\t\t\t\t\t\t<span class="btn-form-func-content">SUBMIT</span>\n\t\t\t\t\t\t\t\t\t\t\t</button>\n\t\t\t\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t\t\t\t</div>\n\t\t\t\t\n\t\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\n\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t</div>\n\t\t\t\t</div>\n\t\t\t</div>\n          </section>\n          \n          <script id="multipleFormScript">\n            let orderSumList = document.getElementById("orderSumList");\n\n  // Function to update the order summary list\n  const updateOrderSummary = (index, color, quantity, price) => {\n    let listItem = document.getElementById("optionGroup" + index + "Sum");\n    if (!listItem) {\n      listItem = document.createElement("li");\n      listItem.id = "optionGroup" + index + "Sum";\n      listItem.className = "order-summary";\n      listItem.innerHTML = '<a href="javascript:;" class="btn btn-outline-danger" style="border-radius: 50%"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-x" viewBox="0 0 16 16"><path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708"/></svg></a><span class="summary-text"></span><span class="price"></span>';\n\n      orderSumList.appendChild(listItem);\n      \n      // Add click event to remove item\n      listItem.querySelector("a").addEventListener("click", function () {\n        listItem.remove();\n        calculateTotalPrice();\n      });\n    }\n\n    const summaryText = listItem.querySelector(".summary-text");\n    const priceSpan = listItem.querySelector(".price");\n\n    if (quantity > 0) {\n      summaryText.textContent = color + " x " + quantity;\n      priceSpan.textContent = "৳ " + (quantity * price).toFixed(2);\n    } else {\n      listItem.remove();\n    }\n\n    calculateTotalPrice();\n  };\n\n  // Function to calculate the total price\n  const calculateTotalPrice = () => {\n    const totalPriceElement = document.querySelector("#totalPrice");\n    const prices = orderSumList.querySelectorAll(".price");\n    let total = 0;\n\n    prices.forEach((priceSpan) => {\n      const priceText = priceSpan.textContent.replace("৳ ", "");\n      total += parseFloat(priceText);\n    });\n\n    totalPriceElement.value = "৳ " + total.toFixed(2);\n  };\n\n  document\n    .querySelectorAll(".colorAndQuantity")\n    .forEach(function (optionBox, index) {\n      const colorList = optionBox.querySelector(".colorList");\n      const quantityInput = optionBox.querySelector(".quantity");\n\n      colorList.addEventListener("change", function () {\n        const color = colorList.value;\n        const quantity = parseInt(quantityInput.value, 10);\n        const price = parseFloat(document.querySelector("#productPrice").value);\n        updateOrderSummary(index, color, quantity, price);\n      });\n\n      quantityInput.addEventListener("input", function () {\n        const color = colorList.value;\n        const quantity = parseInt(quantityInput.value, 10);\n        const price = parseFloat(document.querySelector("#productPrice").value);\n        updateOrderSummary(index, color, quantity, price);\n      });\n    });\n\n  document.addEventListener('DOMContentLoaded', function() {\n  const form = document.querySelector('.multipleItemForm'); \n\n  form.addEventListener('submit', function(e) {\n    e.preventDefault();\n    const formData = new FormData(e.target);\n    let cart = [];\n    const productPrice = formData.get("productPrice");\n\n    const sizeComps = document.querySelectorAll('.colorAndQuantity');\n    sizeComps.forEach(function(sizeComp) {\n      const size = sizeComp.id;\n       const color = document.querySelector("#colorList-" + size).value;\n      const quantity = document.querySelector("#quantity-" + size).value;\n      if (color === "Select a Color") {\n        cart.push({\n          size: size,\n          color: "",\n          quantity: quantity,\n          productPrice: productPrice,\n        });\n      } else {\n        cart.push({\n          size: size,\n          color: color,\n          quantity: quantity,\n          productPrice: productPrice,\n        });\n      }\n    });\n\n    // If cart is empty, add a blank array\n    if (cart.length === 0) {\n      cart = [];\n    }\n    // console.log(cart);\n\n    // Append cart array to FormData object as JSON string\n    formData.append("cart", JSON.stringify(cart));\n    formData.delete("size");\n    formData.delete("color");\n    formData.delete("quantity");\n\n    console.log(Object.fromEntries(formData));\n       fetch('${
                 document.location.protocol + "//" + document.location.host
-              }/checkout', {\n        method: 'POST',\n        body: formData,\n      }).then(response => response.text()).then(url => {\n        if (url) {\n          window.location.href = url;\n        } else {\n          console.error('URL not found in the response');\n        }\n      }).catch(error => {\n        console.error('Error:', error);\n      });\n    e.target.reset();\n  });\n});\n          <\/script>\n          `),
+              }/checkout', {\n        method: 'POST',\n        body: formData,\n      }).then(response => response.text()).then(url => {\n        if (url) {\n          // window.location.href = url;\n        } else {\n          console.error('URL not found in the response');\n        }\n      }).catch(error => {\n        console.error('Error:', error);\n      });\n    e.target.reset();\n  });\n});\n          <\/script>\n          `),
               (n.basicForm = `\n<div class="max-w-sm mx-auto">\n  <div class="text-center">\n    <h1 class="mb-4 text-4xl font-extrabold leading-none tracking-tight text-gray-900 md:text-5xl lg:text-6xl">Order Form</h1>\n  </div>\n\n    <div class="mb-4">\n      <label for="name" class="block text-sm font-medium text-gray-700">Your Name:</label>\n      <input\n        type="text"\n        name="name"\n        placeholder="Enter your Name"\n        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-2"\n      />\n    </div>\n\n\n    <div class="mb-4">\n      <label for="phone" class="block text-sm font-medium text-gray-700">Phone Number:</label>\n      <input\n        type="text"\n        name="phone"\n        placeholder="Enter your Number"\n        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-2"\n      />\n    </div>\n\n\n    <div class="mb-4">\n      <label for="address" class="block text-sm font-medium text-gray-700">Address:</label>\n      <input\n        type="text"\n        name="address"\n        placeholder="Enter your Address"\n        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-2"\n      />\n    </div>\n\n  <div class="hidden">\n    <input type="hidden" id="server" name="landingpage" value="true" />\n    <input type="hidden" id="token" name="_token" value="{{ csrf_token() }}" />\n    <input type="hidden" id="productId" name="productId" class="productId" />\n    <input type="hidden" id="productPrice" name="productPrice" class="productPrice" />\n    <input type="hidden" id="quantity" name="quantity" class="quantity" />\n    <input type="hidden" id="formCheck" name="formCheck" value="Basic Form" />\n  </div>\n\n  <div class="text-center">\n    <button\n      type="submit"\n      class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"\n    >\n      Submit\n    </button>\n  </div>\n</div>\n\n\n<script id="basicFormScript">\n  document.addEventListener('DOMContentLoaded', function () {\n    const form = document.querySelector('.basicForm');\n\n    form.addEventListener('submit', function (e) {\n      e.preventDefault();\n\n      var formData = new FormData(e.target);\n      let cart = [];\n\n      const size = formData.get('size');\n      const color = formData.get('color');\n      const quantity = formData.get('quantity');\n      const productPrice = formData.get('productPrice');\n\n      if (size && color && quantity && productPrice) {\n        cart.push({\n          size: size,\n          color: color,\n          quantity: quantity,\n          productPrice: productPrice,\n        });\n      }\n\n      if (cart.length === 0) {\n        cart = [];\n      }\n\n      formData.append('cart', JSON.stringify(cart));\n      console.log(Object.fromEntries(formData));\n\n      fetch('${
                 document.location.protocol + "//" + document.location.host
               }/checkout', {\n        method: 'POST',\n        body: formData,\n      })\n        .then((response) => response.text())\n        .then((url) => {\n          if (url) {\n            window.location.href = url;\n          } else {\n            console.error('URL not found in the response');\n          }\n        })\n        .catch((error) => {\n          console.error('Error:', error);\n        });\n\n      e.target.reset();\n    });\n  });\n<\/script>\n\n`),
-              (n.shoppingForm = `\n      <section class="text-gray-600 body-font overflow-hidden container ">\n        <div class="container lg:px-5 m-8 mx-auto flex flex-col">\n          <h2\n          class="title-font text-gray-500 tracking-widest mb-4 text-3xl font-extrabold leading-none md:text-5xl lg:text-6xl text-center w-full"\n        >\n          Order Form\n        </h2>\n        <div class="mx-auto w-full flex gap-4 flex-col md:flex-row">\n\n          \x3c!-- Item and additional information --\x3e\n            <div class="lg:w-1/2 w-full">\n              \x3c!-- Item selection  --\x3e\n              <div class="itemInfo"> </div>\n\n              \x3c!-- Additional Information  --\x3e\n              <div class="lg:py-6 mt-6 lg:mt-0 shadow-xl">\n                <h2 class="text-center text-xl md:text-3xl leading-10 mb-4">\n                  Additional Information\n                </h2>\n                <div class="mb-4 px-4">\n                  <label\n                    for="name"\n                    class="block text-sm font-medium text-gray-700"\n                    >Your Name:</label\n                  >\n                  <input\n                    type="text"\n                    name="name"\n                    placeholder="Enter your Name"\n                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-2"\n                  />\n                </div>\n\n                <div class="mb-4 px-4">\n                  <label\n                    for="phone"\n                    class="block text-sm font-medium text-gray-700"\n                    >Phone Number:</label\n                  >\n                  <input\n                    type="text"\n                    name="phone"\n                    placeholder="Enter your Number"\n                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-2"\n                  />\n                </div>\n\n                <div class="mb-4 px-4">\n                  <label\n                    for="address"\n                    class="block text-sm font-medium text-gray-700"\n                    >Address:</label\n                  >\n                  <input\n                    type="text"\n                    name="address"\n                    placeholder="Enter your Address"\n                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-2"\n                  />\n                </div>\n\n              <div class="flex p-4 w-full mb-4">\n                <label for="toggleB" class="flex items-center cursor-pointer">\n                  <div class="relative">\n                    <input type="checkbox" id="toggleB" class="sr-only">\n                    <div class="block bg-gray-400 w-14 h-8 rounded-full"></div>\n                    <div class="dot absolute left-1 top-1 bg-white w-6 h-6 rounded-full transition"></div>\n                  </div>\n                  <div class="ml-3 text-gray-700 font-medium">\n                    Cash on Delivery!\n                  </div>\n                </label>\n              </div>\n\n                <div class="hidden">\n                  <input\n                    type="hidden"\n                    id="server"\n                    name="landingpage"\n                    value="true"\n                  />\n                  <input\n                    type="hidden"\n                    id="token"\n                    name="_token"\n                    value="{{ csrf_token() }}"\n                  />\n                  <input\n                    type="hidden"\n                    id="productId"\n                    name="productId"\n                    class="productId"\n                  />\n                  <input\n                    type="hidden"\n                    id="productPrice"\n                    name="productPrice"\n                    class="productPrice"\n                  />\n                  <input\n                    type="hidden"\n                    id="formCheck"\n                    name="formCheck"\n                    value="Shopping Form"\n                  />\n                </div>\n              </div>\n            </div>\n\n\n            \x3c!-- Order Summary  --\x3e\n            <div class="lg:w-1/2 w-full lg:py-6 mt-6 lg:mt-0 shadow-xl">\n              <div class="space-y-4 rounded-lg bg-white p-4 sm:p-6">\n                <p class="text-xl font-semibold text-gray-900">Order summary</p>\n      \n                <div class="space-y-4">\n                  <div class="space-y-2 shoppingOrderSummary">\n\n                    <div class="flex items-center justify-between gap-4">\n                      <dl class="flex items-center justify-between gap-3 w-full">\n                        <dt class="text-base font-normal text-gray-500">Original price</dt>\n                        <dd class="text-base font-medium text-gray-900">$7,592.00</dd>\n                      </dl>\n                      <button type="button" class="inline-flex items-center text-sm font-medium text-red-600 hover:underline dark:text-red-500">\n                        <svg class="me-1.5 h-5 w-5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">\n                          <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18 17.94 6M18 18 6.06 6" />\n                        </svg>\n                        Remove\n                      </button>\n                    </div>\n  \n                    <div class="flex items-center justify-between gap-4">\n                      <dl class="flex items-center justify-between gap-3 w-full">\n                        <dt class="text-base font-normal text-gray-500">Savings</dt>\n                        <dd class="text-base font-medium text-green-600">-$299.00</dd>\n                      </dl>\n                      <button type="button" class="inline-flex items-center text-sm font-medium text-red-600 hover:underline dark:text-red-500">\n                        <svg class="me-1.5 h-5 w-5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">\n                          <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18 17.94 6M18 18 6.06 6" />\n                        </svg>\n                        Remove\n                      </button>\n                    </div>\n                   \n                    <div class="flex items-center justify-between gap-4">\n                      <dl class="flex items-center justify-between gap-3 w-full">\n                        <dt class="text-base font-normal text-gray-500 ">Store Pickup</dt>\n                        <dd class="text-base font-medium text-gray-900">$99</dd>\n                      </dl>\n                      <button type="button" class="inline-flex items-center text-sm font-medium text-red-600 hover:underline dark:text-red-500">\n                        <svg class="me-1.5 h-5 w-5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">\n                          <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18 17.94 6M18 18 6.06 6" />\n                        </svg>\n                        Remove\n                      </button>\n                    </div>\n      \n          \n      \n                    <div class="flex items-center justify-between gap-4">\n                      <dl class="flex items-center justify-between gap-3 w-full">\n                        <dt class="text-base font-normal text-gray-500">Tax</dt>\n                        <dd class="text-base font-medium text-gray-900">$799</dd>\n                      </dl>\n                      <button type="button" class="inline-flex items-center text-sm font-medium text-red-600 hover:underline dark:text-red-500">\n                        <svg class="me-1.5 h-5 w-5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">\n                          <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18 17.94 6M18 18 6.06 6" />\n                        </svg>\n                        Remove\n                      </button>\n                    </div>\n         \n                  </div>\n      \n                  <dl class="flex items-center justify-between gap-4 border-t border-gray-200 pt-2">\n                    <dt class="text-base font-bold text-gray-900">Total</dt>\n                    <dd class="text-base font-bold text-gray-900 totalPrice">৳ 00.00</dd>\n                  </dl>\n                </div>\n\n                <div class="text-center">\n                  <button type="submit" class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 w-full">Confirm Checkout</button>\n                </div>\n              </div>\n             </div>\n\n\n        </div>\n      </section>\n\n      <style>\n      input:checked ~ .dot {\n        transform: translateX(100%);\n        background-color: #48bb78;\n      }\n      </style>\n\n\n<script id="shoppingFormScript">\n   \n\n<\/script>\n\n`);
+              (n.shoppingForm = `\n      <section class="text-gray-600 body-font overflow-hidden container ">\n        <div class="container lg:px-5 m-8 mx-auto flex flex-col">\n          <h2\n          class="title-font text-gray-500 tracking-widest mb-4 text-3xl font-extrabold leading-none md:text-5xl lg:text-6xl text-center w-full"\n        >\n          Order Form\n        </h2>\n        <div class="mx-auto w-full flex gap-4 flex-col md:flex-row">\n\n          \x3c!-- Item and additional information --\x3e\n            <div class="lg:w-1/2 w-full">\n              \x3c!-- Item selection  --\x3e\n              <div class="itemInfo"> </div>\n\n              \x3c!-- Additional Information  --\x3e\n              <div class="lg:py-6 mt-6 lg:mt-0 shadow-xl">\n                <h2 class="text-center text-xl md:text-3xl leading-10 mb-4">\n                  Additional Information\n                </h2>\n                <div class="mb-4 px-4">\n                  <label\n                    for="name"\n                    class="block text-sm font-medium text-gray-700"\n                    >Your Name:</label\n                  >\n                  <input\n                    type="text"\n                    name="name"\n                    placeholder="Enter your Name"\n                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-2"\n                    required\n                  />\n                </div>\n\n                <div class="mb-4 px-4">\n                  <label\n                    for="phone"\n                    class="block text-sm font-medium text-gray-700"\n                    >Phone Number:</label\n                  >\n                  <input\n                    type="text"\n                    name="phone"\n                    placeholder="Enter your Number"\n                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-2"\n                    required\n                  />\n                </div>\n\n                <div class="mb-4 px-4">\n                  <label\n                    for="address"\n                    class="block text-sm font-medium text-gray-700"\n                    >Address:</label\n                  >\n                  <input\n                    type="text"\n                    name="address"\n                    placeholder="Enter your Address"\n                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-2"\n                    required\n                  />\n                </div>\n\n              <div class="flex p-4 w-full">\n                <label for="toggleB" class="flex items-center cursor-pointer">\n                  <div class="relative">\n                    <input type="checkbox" id="toggleB" class="sr-only" name="cashOnDelivery">\n                    <div class="block bg-gray-400 w-14 h-8 rounded-full"></div>\n                    <div class="dot absolute left-1 top-1 bg-white w-6 h-6 rounded-full transition"></div>\n                  </div>\n                  <label for="cashOnDelivery" class="ml-3 text-gray-700 font-medium">\n                    Cash on Delivery!\n                  </label>\n                </label>\n              </div>\n              <div class="p-4 w-full mb-4">\n                <h3 class="mb-3 font-semibold text-gray-900">Shipping Fee</h3>\n                <ul class="w-48 text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-lg">\n                    <li class="w-full border-b border-gray-200 rounded-t-lg ">\n                        <div class="flex items-center ps-3">\n                            <input id="insideDhaka" type="radio" value="insideDhaka" name="shippingFee" class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500">\n                            <label for="insideDhaka" class="w-full py-3 ms-2 text-sm font-medium text-gray-900">Inside Dhaka - 60TK </label>\n                        </div>\n                    </li>\n                    <li class="w-full border-b border-gray-200 rounded-t-lg">\n                        <div class="flex items-center ps-3">\n                            <input id="outsideDhaka" type="radio" value="outsideDhaka" name="shippingFee" class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 focus:ring-2">\n                            <label for="outsideDhaka" class="w-full py-3 ms-2 text-sm font-medium text-gray-900">Outside Dhaka - 120TK</label>\n                        </div>\n                    </li>\n                </ul>\n              </div>\n\n\n                <div class="hidden">\n                  <input\n                    type="hidden"\n                    id="server"\n                    name="landingpage"\n                    value="true"\n                  />\n                  <input\n                    type="hidden"\n                    id="token"\n                    name="_token"\n                    value="{{ csrf_token() }}"\n                  />\n                  <input\n                    type="hidden"\n                    id="productId"\n                    name="productId"\n                    class="productId"\n                  />\n                  <input\n                    type="hidden"\n                    id="productPrice"\n                    name="productPrice"\n                    class="productPrice"\n                  />\n                  <input\n                    type="hidden"\n                    id="formCheck"\n                    name="formCheck"\n                    value="Shopping Form"\n                  />\n                </div>\n              </div>\n            </div>\n\n\n            \x3c!-- Order Summary  --\x3e\n            <div class="lg:w-1/2 w-full lg:py-6 mt-6 lg:mt-0 shadow-xl">\n              <div class="space-y-4 rounded-lg bg-white p-4 sm:p-6">\n                <p class="text-xl font-semibold text-gray-900">Order summary</p>\n      \n                <div class="space-y-4">\n                  <div class="space-y-2 shoppingOrderSummary"> </div>\n      \n                  <dl class="flex items-center justify-between gap-4 border-t border-gray-200 pt-2">\n                    <dt class="text-base font-bold text-gray-900">Total</dt>\n                    <dd class="text-base font-bold text-gray-900 totalPrice">৳ 00.00</dd>\n                  </dl>\n                </div>\n\n                <div class="text-center">\n                  <button type="submit" class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 w-full">Confirm Checkout</button>\n                </div>\n              </div>\n             </div>\n\n\n        </div>\n      </section>\n\n      <style>\n      input:checked ~ .dot {\n        transform: translateX(100%);\n        background-color: #48bb78;\n      }\n      </style>\n\n`);
           },
           707: (t, n) => {
             Object.defineProperty(n, "__esModule", { value: !0 }),
